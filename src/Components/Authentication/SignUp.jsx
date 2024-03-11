@@ -8,7 +8,8 @@ import {
   onAuthStateChanged,
 } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
-import { Toaster, toast } from "sonner";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import verify from "../../assets/Verified.gif";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -18,7 +19,7 @@ const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [theme, setTheme] = useState("light");
+  // const [theme, setTheme] = useState("light");
   const [isEmailSent, setIsEmailSent] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showconfirmPassword, setShowconfirmPassword] = useState(false);
@@ -26,12 +27,12 @@ const Signup = () => {
   const [isSigningUp, setIsSigningUp] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const prefersDarkMode =
-      window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches;
-    setTheme(prefersDarkMode ? "dark" : "light");
-  }, []);
+  // useEffect(() => {
+  //   const prefersDarkMode =
+  //     window.matchMedia &&
+  //     window.matchMedia("(prefers-color-scheme: dark)").matches;
+  //   setTheme(prefersDarkMode ? "dark" : "light");
+  // }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -88,12 +89,12 @@ const Signup = () => {
     setIsSigningUp(true);
     
     if (password !== confirmPassword) {
-      toast.error("Passwords do Not Match");
+      toast.error("Passwords do Not Match ❌");
       setIsSigningUp(false);
       return;
     }
     if (password.length < 6) {
-      toast.error("Password must be at least 6 characters");
+      toast.error("Password must be at least 6 characters ❌");
       setIsSigningUp(false);
       return;
     }
@@ -148,10 +149,7 @@ const Signup = () => {
       {!isEmailSent ? (
         <form onSubmit={handleSignup}>
           <div
-            className={`max-w-md mx-auto mt-24 p-6 rounded-md shadow-custom ${
-              theme === "dark" ? "dark:bg-gray-800 text-white" : ""
-            }`}
-          >
+            className="max-w-md mx-auto mt-24 p-6 rounded-md shadow-xl bg-white" >
             <div className="text-2xl font-semibold mb-4">Signup</div>
             <input
               className="w-full mb-3 p-2 text-slate-800 border rounded-md"
@@ -194,7 +192,7 @@ const Signup = () => {
             </div>
             <div className="relative">
               <input
-                className="w-full mb-3 p-2 text-slate-800 border rounded-md"
+                className="w-full mb-3 p-2 bg-white shadow-sm text-slate-800 border rounded-md"
                 type={showconfirmPassword ? "text" : "password"}
                 placeholder="Confirm Password"
                 value={confirmPassword}
@@ -243,7 +241,7 @@ const Signup = () => {
             </div>
             <button
               type="button"
-              className="w-full bg-white p-2 text-gray-800 font-semibold rounded-md hover:bg-sky-200"
+              className="w-full bg-gray-500 text-white p-2 text-gray-800 font-semibold rounded-md hover:bg-gray-700"
               onClick={handleGoogleSignup}
             >
               Signup with Google
@@ -257,7 +255,7 @@ const Signup = () => {
           </div>
         </form>
       ) : (
-        <div className="max-w-md mx-auto mt-24 p-6 bg-white rounded-md shadow-custom">
+        <div className="max-w-md mx-auto mt-24 p-6 bg-white rounded-md shadow-sm">
           <div className="text-2xl font-semibold mb-4">Verify Your Email</div>
           <div className="font-semibold">
             Please check your email inbox for the verification link.
@@ -277,7 +275,7 @@ const Signup = () => {
           </div>
         </div>
       )}
-      <Toaster position="top-right" theme={theme} gap="30" />
+      <ToastContainer />
     </div>
   );
 };

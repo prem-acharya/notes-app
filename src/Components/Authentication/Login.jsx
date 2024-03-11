@@ -5,7 +5,8 @@ import {
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
 } from "firebase/auth";
-import { Toaster, toast } from "sonner";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 
@@ -13,15 +14,15 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [theme, setTheme] = useState("light");
+  // const [theme, setTheme] = useState("light");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const prefersDarkMode =
-      window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches;
-    setTheme(prefersDarkMode ? "dark" : "light");
-  }, []);
+  // useEffect(() => {
+  //   const prefersDarkMode =
+  //     window.matchMedia &&
+  //     window.matchMedia("(prefers-color-scheme: dark)").matches;
+  //   setTheme(prefersDarkMode ? "dark" : "light");
+  // }, []);
 
   const handleLogin = async () => {
     try {
@@ -48,10 +49,7 @@ const Login = () => {
 
   return (
     <div
-      className={`max-w-md mx-auto mt-24 p-6 rounded-md shadow-custom ${
-        theme === "dark" ? "dark:bg-gray-800 text-white" : ""
-      }`}
-    >
+      className="max-w-md mx-auto mt-24 p-6 rounded-md bg-white shadow-custom">
       <h2 className="text-2xl font-semibold mb-4">Login</h2>
       <input
         className="w-full text-slate-800 mb-3 p-2 border rounded-md"
@@ -103,7 +101,7 @@ const Login = () => {
           Create Account
         </Link>
       </div>
-      <Toaster position="top-right" theme={theme} />
+      <ToastContainer />
     </div>
   );
 };

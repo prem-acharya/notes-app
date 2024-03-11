@@ -1,7 +1,7 @@
 import { useState } from "react";
 import SearchIcon from "@material-ui/icons/Search";
 import { Avatar } from "@material-ui/core";
-import logo from "../../Images/logo1.png";
+import logo from "../../assets/logo1.png";
 import { Link } from "react-router-dom";
 import { signOut, getAuth } from "firebase/auth";
 import ClearIcon from "@material-ui/icons/Clear";
@@ -48,7 +48,7 @@ const Header = () => {
                 className="absolute top-0 right-0 mt-1 mr-2 cursor-pointer"
                 onClick={() => setShowUserInfo(false)}
               />
-              <div className="text-gray-700 font-medium mb-1">{truncatedEmail}...</div>
+              <div className="text-blue-500 font-semibold mb-1">{truncatedEmail}...</div>
               <Avatar className="mb-4 mt-2" style={{ width: "80px", height: "80px" }} />
               <div className="text-gray-700 mb-4">Welcome to Notes App</div>
               <div className="bg-blue-400 font-semibold hover:bg-blue-600 rounded-full p-2">
