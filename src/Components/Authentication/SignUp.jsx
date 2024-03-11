@@ -122,7 +122,7 @@ const Signup = () => {
           {!isEmailSent ? (
             <form className="m-[-20px]" onSubmit={handleSignup}>
               <h2 className="text-2xl font-semibold mb-4">Sign Up</h2>
-              <p className="text-sm mb-8">Join us! You've been missed!</p>
+              <p className="text-sm mb-8">Capture, Upload, Organize Your Notes!</p>
               <input
                 className="w-full mb-3 p-2 text-slate-800 border rounded-md"
                 type="text"
