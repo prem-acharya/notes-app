@@ -241,7 +241,7 @@ const Signup = () => {
             </div>
             <button
               type="button"
-              className="w-full bg-gray-500 text-white p-2 text-gray-800 font-semibold rounded-md hover:bg-gray-700"
+              className="w-full bg-gray-500 text-white p-2 font-semibold rounded-md hover:bg-gray-700"
               onClick={handleGoogleSignup}
             >
               Signup with Google
@@ -255,19 +255,19 @@ const Signup = () => {
           </div>
         </form>
       ) : (
-        <div className="max-w-md mx-auto mt-24 p-6 bg-white rounded-md shadow-sm">
+        <div className="max-w-md mx-auto mt-24 p-6 text-center bg-white rounded-md shadow-custom">
           <div className="text-2xl font-semibold mb-4">Verify Your Email</div>
           <div className="font-semibold">
             Please check your email inbox for the verification link.
           </div>
-          <div className="text-center mt-2">
+          <div className="mt-2">
             Verification email sent to:{" "}
             <strong className="text-blue-500">{email}</strong>
           </div>
           <div>
             <img src={verify} alt="Email verification" />
           </div>
-          <div className="text-center mt-2 font-light">
+          <div className="mt-2 font-light">
             Have an account?{" "}
             <Link to="/login" className="font-semibold hover:underline">
               Log In

@@ -14,6 +14,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isLogin, setIsLogin] = useState(false);
   // const [theme, setTheme] = useState("light");
   const navigate = useNavigate();
 
@@ -25,6 +26,9 @@ const Login = () => {
   // }, []);
 
   const handleLogin = async () => {
+
+    setIsLogin(true);
+
     try {
       await signInWithEmailAndPassword(auth, email, password);
       toast.success("Logged in successfully 🥳");
@@ -34,6 +38,8 @@ const Login = () => {
     } catch (error) {
       // console.error('Login failed', error.message);
       toast.error("Invalid: ID & Password");
+    } finally {
+      setIsLogin(false);
     }
   };
 
@@ -85,9 +91,10 @@ const Login = () => {
       </div>
       <button
         className="w-full bg-blue-500 text-white p-2 mt-2 font-semibold rounded-md mb-4 hover:bg-blue-600"
+        disabled={isLogin}
         onClick={handleLogin}
       >
-        Login
+        {isLogin ? "Login..." : "Login"}
       </button>
       <button
         className="w-full bg-gray-300 text-gray-800 p-2 font-semibold rounded-md mb-4 hover:bg-gray-400"
