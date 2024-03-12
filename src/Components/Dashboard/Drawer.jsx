@@ -4,8 +4,8 @@ import StarBorderOutlinedIcon from "@material-ui/icons/StarBorderOutlined";
 import CloudQueueIcon from "@material-ui/icons/CloudQueue";
 import AddIcon from "@material-ui/icons/Add";
 import CameraAltIcon from "@material-ui/icons/CameraAlt";
-import QueryBuilderOutlinedIcon from "@material-ui/icons/QueryBuilderOutlined";
-import DeleteOutlineOutlinedIcon from "@material-ui/icons/DeleteOutlineOutlined";
+// import QueryBuilderOutlinedIcon from "@material-ui/icons/QueryBuilderOutlined";
+// import DeleteOutlineOutlinedIcon from "@material-ui/icons/DeleteOutlineOutlined";
 
 const progressPercentage = 40;
 
@@ -24,8 +24,8 @@ const Sidebar = () => {
           { icon: <CameraAltIcon />, text: "Scan Documents" },
           { icon: <PeopleAltOutlinedIcon />, text: "Shared with me" },
           { icon: <StarBorderOutlinedIcon />, text: "Starred" },
-          { icon: <QueryBuilderOutlinedIcon />, text: "Recent" },
-          { icon: <DeleteOutlineOutlinedIcon />, text: "Bin" },
+          // { icon: <QueryBuilderOutlinedIcon />, text: "Recent" },
+          // { icon: <DeleteOutlineOutlinedIcon />, text: "Bin" },
         ].map((option, index) => (
           <div
             key={index}
@@ -38,7 +38,7 @@ const Sidebar = () => {
           </div>
         ))}
       </div>
-      <hr />
+      {/* <hr /> */}
       <div className="mt-2.5">
         <div className="flex items-center p-2 hover:bg-gray-200 cursor-pointer rounded-r-full">
           <CloudQueueIcon />

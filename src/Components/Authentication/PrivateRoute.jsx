@@ -1,4 +1,3 @@
-// PrivateRoute.jsx
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from './AuthContext'; // Make sure this hook correctly fetches auth status
