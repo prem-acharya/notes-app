@@ -6,7 +6,7 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import StorageIcon from "@mui/icons-material/Storage";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import DocumentScannerIcon from "@mui/icons-material/DocumentScanner";
-import Documents from "./Documents";
+import Documents from "./Sections/Documents";
 
 const Sidebar = () => {
   const [selectedOption, setSelectedOption] = useState("documents");
