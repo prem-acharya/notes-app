@@ -1,60 +1,41 @@
-import DescriptionIcon from "@material-ui/icons/Description";
-import PeopleAltOutlinedIcon from "@material-ui/icons/PeopleAltOutlined";
-import StarBorderOutlinedIcon from "@material-ui/icons/StarBorderOutlined";
-import CloudQueueIcon from "@material-ui/icons/CloudQueue";
-import AddIcon from "@material-ui/icons/Add";
-import CameraAltIcon from "@material-ui/icons/CameraAlt";
-import QueryBuilderOutlinedIcon from "@material-ui/icons/QueryBuilderOutlined";
-import DeleteOutlineOutlinedIcon from "@material-ui/icons/DeleteOutlineOutlined";
-
-const progressPercentage = 40;
+import React from 'react';
+import HomeIcon from '@mui/icons-material/Home';
+import ComputerIcon from '@mui/icons-material/Computer';
+import ShareIcon from '@mui/icons-material/Share';
+import StarBorderIcon from '@mui/icons-material/StarBorder';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import StorageIcon from '@mui/icons-material/Storage';
+import ScheduleIcon from '@mui/icons-material/Schedule';
 
 const Sidebar = () => {
-  return (
-    <div className="mt-2 ml-2 mr-12">
-      <div className="mb-2">
-        <button className="flex items-center border border-gray-300 rounded-full p-1 shadow-md ml-2 bg-transparent hover:bg-gray-100">
-          <AddIcon style={{ color: "#0A96F8" }} />
-          <span className="text-base mr-5 ml-2.5">New</span>
-        </button>
+
+  return(
+    <div className="fixed inset-y-0 left-0 w-64 bg-blue-50 p-5 flex-col cursor-pointer transition duration-300 transform -translate-x-full md:relative md:translate-x-0 md:w-64 md:flex md:flex-col">
+      <div className="flex items-center mb-3">
+        <span className="font-bold text-lg">My Notes</span>
       </div>
-      <div className="mt-2">
-        {[
-          { icon: <DescriptionIcon />, text: "My documents" },
-          { icon: <CameraAltIcon />, text: "Scan Documents" },
-          { icon: <PeopleAltOutlinedIcon />, text: "Shared with me" },
-          { icon: <StarBorderOutlinedIcon />, text: "Starred" },
-          { icon: <QueryBuilderOutlinedIcon />, text: "Recent" },
-          { icon: <DeleteOutlineOutlinedIcon />, text: "Bin" },
-        ].map((option, index) => (
-          <div
-            key={index}
-            className="flex items-center p-2 hover:bg-gray-200 cursor-pointer rounded-r-full"
-          >
-            {option.icon}
-            <span className="ml-4 text-sm font-medium text-gray-600">
-              {option.text}
-            </span>
-          </div>
-        ))}
-      </div>
-      <hr />
-      <div className="mt-2.5">
-        <div className="flex items-center p-2 hover:bg-gray-200 cursor-pointer rounded-r-full">
-          <CloudQueueIcon />
-          <span className="ml-4 text-sm font-medium text-gray-600">
-            Storage
-          </span>
+      <div className="flex flex-col">
+        <a href="#" className="flex items-center py-2 text-gray-700 hover:bg-gray-200 rounded-md">
+          <HomeIcon className="mr-2" /> Documents
+        </a>
+        <a href="#" className="flex items-center py-2 text-gray-700 hover:bg-gray-200 rounded-md">
+          <ComputerIcon className="mr-2" /> Scanner
+        </a>
+        <a href="#" className="flex items-center py-2 text-gray-700 hover:bg-gray-200 rounded-md">
+          <ScheduleIcon className="mr-2" /> Recent
+        </a>
+        <a href="#" className="flex items-center py-2 text-gray-700 hover:bg-gray-200 rounded-md">
+          <ShareIcon className="mr-2" /> Shared with me
+        </a>
+        <a href="#" className="flex items-center py-2 text-gray-700 hover:bg-gray-200 rounded-md">
+          <StarBorderIcon className="mr-2" /> Starred
+        </a>
+        <a href="#" className="flex items-center py-2 text-gray-700 hover:bg-gray-200 rounded-md">
+          <DeleteOutlineIcon className="mr-2" /> Trash
+        </a>
+        <div className="flex items-center py-2 text-gray-700 hover:bg-gray-200 rounded-md">
+          <StorageIcon className="mr-2" /> Storage
         </div>
-        <div className="rounded-full m-2 h-3 w-36 bg-gray-300">
-          <div
-            className="bg-blue-500 h-3 rounded-full"
-            style={{ width: `${progressPercentage}%` }} // Dynamically set the width based on the progress
-          ></div>
-        </div>
-        <span className="block text-gray-800 m-2 text-sm mt-1">
-          5 GB of 1 GB used
-        </span>
       </div>
     </div>
   );

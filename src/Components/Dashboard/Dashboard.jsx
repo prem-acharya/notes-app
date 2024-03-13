@@ -1,15 +1,15 @@
-import React from "react";
-import Navbar from "./Navbar";
-import Sidebar from "./Sidebar";
-// import Data from "./Data";
+import React from 'react';
+import Sidebar from './Sidebar';
+import Header from './Header';
+import MainContent from './MainContent';
 
 const Dashboard = () => {
   return (
-    <div>
-      <Navbar />
-      <div className="flex">
+    <div className="flex flex-col h-screen">
+      <Header />
+      <div className="flex flex-1 overflow-hidden">
         <Sidebar />
-        {/* <Data /> */}
+        <MainContent />
       </div>
     </div>
   );
