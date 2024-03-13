@@ -9,7 +9,7 @@ const Dashboard = () => {
       <Header />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />
-        <MainContent />
+        {/* <MainContent /> */}
       </div>
     </div>
   );
