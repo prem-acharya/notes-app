@@ -7,10 +7,39 @@ import Notes from "../../assets/logo1.png";
 import { firestore as db } from "../../firebase"; // Adjust the path as necessary
 import { doc, getDoc } from "firebase/firestore";
 import { useAuth } from "../Authentication/AuthContext"; // Adjust the path as necessary
+import ExitToAppIcon from "@material-ui/icons/ExitToApp"; // Add this import
+import { signOut, getAuth } from "firebase/auth"; // Add this import
+import ClearIcon from "@mui/icons-material/Clear"; // Make sure to import ClearIcon
+import { Link } from "react-router-dom"; // Make sure to import Link
 
 const Header = () => {
   const [username, setUsername] = useState("");
   const { currentUser } = useAuth(); // Use the useAuth hook to get the current user
+  const [showUserInfo, setShowUserInfo] = useState(false);
+  const auth = getAuth();
+
+  const user = auth.currentUser;
+
+  const truncatedEmail = user?.email.substring(0, 22);
+
+  const getInitials = (name) => {
+    return name.charAt(0).toUpperCase();
+  };
+
+  const handleAvatarClick = () => {
+    setShowUserInfo((prevShowUserInfo) => !prevShowUserInfo);
+  };
+
+  const handleSignOut = () => {
+    signOut(auth)
+      .then(() => {
+        // Handle sign-out success.
+        // You might want to redirect the user to the login page here.
+      })
+      .catch((error) => {
+        // Handle errors here.
+      });
+  };
 
   useEffect(() => {
     if (currentUser) {
@@ -57,13 +86,53 @@ const Header = () => {
       <div className="flex items-center">
         {(isDesktopOrLaptop || !isTablet) && (
           <div className="flex">
-            Hello,<div className="text-blue-500 ml-1 font-medium">{username.toUpperCase()}</div>
+            Hello,
+            <div className="text-blue-500 ml-1 font-medium">
+              {username.toUpperCase()}
+            </div>
           </div>
         )}
-        <AccountCircleIcon
-          className="text-blue-300 mx-2"
-          style={{ fontSize: "3rem" }}
-        />
+        <div className="relative">
+          {" "}
+          {/* Wrap the icon and dropdown in a relative div */}
+          {username ? (
+            <div
+              className="bg-blue-300 text-white font-semibold rounded-full w-12 h-12 flex items-center justify-center mx-2 cursor-pointer"
+              style={{ fontSize: "1.5rem" }}
+              onClick={handleAvatarClick}
+            >
+              {getInitials(username)}
+            </div>
+          ) : (
+            <AccountCircleIcon
+              className="text-blue-300 mx-2 cursor-pointer"
+              style={{ fontSize: "3rem" }}
+              onClick={handleAvatarClick}
+            />
+          )}
+          {showUserInfo && (
+            <div className="absolute cursor-pointer right-0 mr-2 w-64 p-4 bg-blue-50 shadow-2xl rounded-xl flex flex-col items-center z-10">
+              <ClearIcon
+                className="absolute top-0 right-0 m-2 cursor-pointer"
+                onClick={() => setShowUserInfo(false)}
+              />
+              <div className="mb-4 text-white w-24 h-24  bg-blue-300 rounded-full flex items-center justify-center" style={{ fontSize: "5rem" }}>
+                {username ? username[0].toUpperCase() : <AccountCircleIcon />}
+              </div>
+              <div className="text-gray-700 font-medium mb-1">
+                {truncatedEmail}...
+              </div>
+              <div className="text-gray-700 mb-4">Welcome to Notes App</div>
+              <button
+                onClick={handleSignOut}
+                className="bg-blue-400 font-semibold hover:bg-blue-500 rounded-full p-2 text-white flex items-center"
+              >
+                <ExitToAppIcon className="mr-2" />
+                Sign Out
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

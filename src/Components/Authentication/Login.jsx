@@ -13,12 +13,14 @@ import "react-toastify/dist/ReactToastify.css";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import loginGif from "../../assets/Login.gif";
+import googleLogo from "../../assets/Google.png";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
+  const [isContinuewithGoogle, setIsContinuewithGoogle] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async () => {
@@ -47,23 +49,27 @@ const Login = () => {
   };
 
   const handleGoogleLogin = async () => {
+    setIsContinuewithGoogle(true);
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const { user } = result;
-  
+
       if (user.metadata.creationTime === user.metadata.lastSignInTime) {
         await setDoc(doc(firestore, "users", user.uid), {
           username: user.displayName,
           email: user.email,
         });
       }
-  
+
       toast.success("Google Login Successful 🥳");
       setTimeout(() => {
         navigate("/dashboard");
       }, 3000);
     } catch (error) {
+      console.log("error:",error);
       toast.error("Google Login Failed");
+    } finally {
+      setIsContinuewithGoogle(false);
     }
   };
 
@@ -71,7 +77,11 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center space-x-4 bg-gray-100">
       <div className="flex flex-col md:flex-row bg-white rounded-xl shadow-custom overflow-hidden">
         <div className="hidden md:block w-full md:w-1/2 lg:w-3/5">
-          <img className="object-cover w-full h-full" src={loginGif} alt="Login" />
+          <img
+            className="object-cover w-full h-full"
+            src={loginGif}
+            alt="Login"
+          />
         </div>
         <div className="w-full md:max-w-md lg:max-w-full md:w-1/2 lg:w-3/5 p-8 md:p-12 lg:p-24">
           <h2 className="text-2xl font-semibold mb-4">Hello Again!</h2>
@@ -122,13 +132,35 @@ const Login = () => {
             Forgot Password
           </button>
           <div className="text-center mb-2 font-light">OR</div>
-          <button
-            type="button"
-            className="w-full bg-gray-500 text-white p-2 font-semibold rounded-md hover:bg-gray-700"
-            onClick={handleGoogleLogin}
-          >
-            Login with Google
-          </button>
+          <>
+            <style>
+              {`
+          .gradient-hover-animation {
+            background-size: 200% 100%;
+            background-image: linear-gradient(to right, #EBEEEE 50%, #C9D9FD 50%);
+            transition: background-position 1s;
+          }
+
+          .gradient-hover-animation:hover {
+            background-position: -100% 0;
+          }
+        `}
+            </style>
+            <button
+              type="button"
+              disabled={isContinuewithGoogle}
+              className=" flex items-center justify-center w-full bg-gray-100 p-2 font-semibold rounded-md hover:bg-gray-300 gradient-hover-animation"
+              onClick={handleGoogleLogin}
+            >
+              <img
+                className="w-6 h-6 mr-2"
+                src={googleLogo}
+                alt="Google_logo"
+                srcset=""
+              />
+              {isContinuewithGoogle ? "Continue..." : "Continue with Google"}
+            </button>
+          </>
           <div className="text-center mt-3 font-light">
             Don't have an account?{" "}
             <Link to="/signup" className="font-semibold hover:underline">
