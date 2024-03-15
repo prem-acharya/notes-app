@@ -97,7 +97,7 @@ const Header = () => {
           {/* Wrap the icon and dropdown in a relative div */}
           {username ? (
             <div
-              className="bg-blue-300 text-white font-semibold rounded-full w-12 h-12 flex items-center justify-center mx-2 cursor-pointer"
+              className="bg-blue-300 hover:bg-blue-400 text-white font-semibold rounded-full w-12 h-12 flex items-center justify-center mx-2 cursor-pointer"
               style={{ fontSize: "1.5rem" }}
               onClick={handleAvatarClick}
             >
@@ -105,7 +105,7 @@ const Header = () => {
             </div>
           ) : (
             <AccountCircleIcon
-              className="text-blue-300 mx-2 cursor-pointer"
+              className="text-blue-300 hover:bg-blue-400 mx-2 cursor-pointer"
               style={{ fontSize: "3rem" }}
               onClick={handleAvatarClick}
             />
@@ -116,7 +116,7 @@ const Header = () => {
                 className="absolute top-0 right-0 m-2 cursor-pointer"
                 onClick={() => setShowUserInfo(false)}
               />
-              <div className="mb-4 text-white w-24 h-24  bg-blue-300 rounded-full flex items-center justify-center" style={{ fontSize: "5rem" }}>
+              <div className="mb-4 text-white w-24 h-24  bg-blue-300 hover:bg-blue-400 rounded-full flex items-center justify-center" style={{ fontSize: "5rem" }}>
                 {username ? username[0].toUpperCase() : <AccountCircleIcon />}
               </div>
               <div className="text-gray-700 font-medium mb-1">

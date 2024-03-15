@@ -137,7 +137,7 @@ const Login = () => {
               {`
           .gradient-hover-animation {
             background-size: 200% 100%;
-            background-image: linear-gradient(to right, #EBEEEE 50%, #C9D9FD 50%);
+            background-image: linear-gradient(to right, #EBEEEE 50%, #c9d9fd 50%);
             transition: background-position 1s;
           }
 

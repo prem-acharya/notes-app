@@ -1,31 +1,30 @@
 import React from "react";
-import NoteAddIcon from "@mui/icons-material/NoteAdd";
-import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
 
 const Documents = () => {
   return (
 <div className="bg-white p-5 rounded-md absolute top-20 left-5 md:left-72 right-5 md:right-5">
-  <div className="flex flex-col md:flex-row justify-between items-center mb-4">
+  <div className="flex md:flex-row justify-between items-center mb-4">
     <h2 className="text-xl font-semibold mb-4 md:mb-0">My Documents</h2>
-    <div className="flex space-x-4 bg-blue-100 rounded-md p-2">
+    <div className="flex space-x-4">
       <label className="cursor-pointer">
         <input type="file" className="hidden" />
-        <div className="flex items-center space-x-2 font-medium text-blue-600">
+        <div className="flex items-center space-x-2 bg-blue-100 rounded-md p-2 hover:bg-blue-200 font-medium text-blue-600">
           <span className="material-icons">
-            <NoteAddIcon className="text-xl" />
+            <UploadFileIcon className="text-xl" />
           </span>
-          <span className="hidden md:inline-block">Upload File</span>
+          <span className="hidden md:inline-block">Upload</span>
         </div>
       </label>
-      <button className="flex items-center space-x-2 font-medium text-blue-600">
+      <button className="flex items-center bg-blue-100 rounded-md p-2 hover:bg-blue-200 space-x-2 font-medium text-blue-600">
         <span className="material-icons">
-          <CreateNewFolderIcon className="text-xl" />
+          <CreateNewFolderOutlinedIcon className="text-xl" />
         </span>
-        <span className="hidden md:inline-block">Create Folder</span>
+        <span className="hidden md:inline-block">Folder</span>
       </button>
     </div>
   </div>
-  {/* Rest of your content goes here */}
 </div>
 
   );
