@@ -79,7 +79,7 @@ const Header = () => {
           type="text"
           placeholder="Search Your Notes"
           className={`bg-transparent outline-none p-2 ${
-            isMobile ? "px-4" : isTablet ? "px-10" : "px-56"
+            isMobile ? "px-1" : isTablet ? "px-10" : "px-56"
           } rounded-full`}
         />
       </div>
