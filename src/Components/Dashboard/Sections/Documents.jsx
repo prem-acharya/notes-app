@@ -28,123 +28,294 @@ const Documents = () => {
           </button>
         </div>
       </div>
+        <div className=" font-semibold text-blue-500">Home / ICT / Sem-8</div>
       <hr />
       {/* Folders Section */}
-      <div className="mt-4 cursor-pointer">
-        <h3 className="text-lg font-semibold mb-2">Folders</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-          {/* Repeat this block for each folder */}
-          <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
-            <div className="flex items-center">
-              <FolderIcon className="text-blue-400 text-2xl mr-2" />
-              <span className="text-sm font-medium">Folder Name</span>
+      <div className="h-[68vh] overflow-y-scroll overflow-x-hidden ">
+        <div className="mt-4 cursor-pointer">
+          <h3 className="text-lg font-semibold mb-2">Folders</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+            {/* Repeat this block for each folder */}
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <FolderIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">Folder Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
             </div>
-            <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
-          </div>
-          <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
-            <div className="flex items-center">
-              <FolderIcon className="text-blue-400 text-2xl mr-2" />
-              <span className="text-sm font-medium">Folder Name</span>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <FolderIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">Folder Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
             </div>
-            <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
-          </div>
-          <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
-            <div className="flex items-center">
-              <FolderIcon className="text-blue-400 text-2xl mr-2" />
-              <span className="text-sm font-medium">Folder Name</span>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <FolderIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">Folder Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
             </div>
-            <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
-          </div>
-          <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
-            <div className="flex items-center">
-              <FolderIcon className="text-blue-400 text-2xl mr-2" />
-              <span className="text-sm font-medium">Folder Name</span>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <FolderIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">Folder Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
             </div>
-            <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
-          </div>
-          <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
-            <div className="flex items-center">
-              <FolderIcon className="text-blue-400 text-2xl mr-2" />
-              <span className="text-sm font-medium">Folder Name</span>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <FolderIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">Folder Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
             </div>
-            <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
-          </div>
-          <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
-            <div className="flex items-center">
-              <FolderIcon className="text-blue-400 text-2xl mr-2" />
-              <span className="text-sm font-medium">Folder Name</span>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <FolderIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">Folder Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
             </div>
-            <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
-          </div>
-          <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
-            <div className="flex items-center">
-              <FolderIcon className="text-blue-400 text-2xl mr-2" />
-              <span className="text-sm font-medium">Folder Name</span>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <FolderIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">Folder Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
             </div>
-            <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
           </div>
         </div>
-      </div>
-      {/* Files Section */}
-      <div className="mt-6 cursor-pointer">
-        <h3 className="text-lg font-semibold mb-2">Files</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-          {/* Repeat this block for each file */}
-          <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
-            <div className="flex items-center">
-              <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
-              <span className="text-sm font-medium">File Name</span>
+        {/* Files Section */}
+        <div className="mt-6 cursor-pointer">
+          <h3 className="text-lg font-semibold mb-2">Files</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+            {/* Repeat this block for each file */}
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">File Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
             </div>
-            <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
-          </div>
-          <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
-            <div className="flex items-center">
-              <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
-              <span className="text-sm font-medium">File Name</span>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">File Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
             </div>
-            <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
-          </div>
-          <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
-            <div className="flex items-center">
-              <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
-              <span className="text-sm font-medium">File Name</span>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">File Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
             </div>
-            <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
-          </div>
-          <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
-            <div className="flex items-center">
-              <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
-              <span className="text-sm font-medium">File Name</span>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">File Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
             </div>
-            <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
-          </div>
-          <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
-            <div className="flex items-center">
-              <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
-              <span className="text-sm font-medium">File Name</span>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">File Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
             </div>
-            <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
-          </div>
-          <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
-            <div className="flex items-center">
-              <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
-              <span className="text-sm font-medium">File Name</span>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">File Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
             </div>
-            <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
-          </div>
-          <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
-            <div className="flex items-center">
-              <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
-              <span className="text-sm font-medium">File Name</span>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">File Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
             </div>
-            <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
-          </div>
-          <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
-            <div className="flex items-center">
-              <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
-              <span className="text-sm font-medium">File Name</span>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">File Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
             </div>
-            <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">File Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
+            </div>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">File Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
+            </div>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">File Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
+            </div>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">File Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
+            </div>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">File Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
+            </div>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">File Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
+            </div>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">File Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
+            </div>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">File Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
+            </div>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">File Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
+            </div>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">File Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
+            </div>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">File Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
+            </div>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">File Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
+            </div>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">File Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
+            </div>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">File Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
+            </div>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">File Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
+            </div>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">File Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
+            </div>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">File Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
+            </div>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">File Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
+            </div>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">File Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
+            </div>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">File Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
+            </div>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">File Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
+            </div>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">File Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
+            </div>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">File Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
+            </div>
+            <div className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div className="flex items-center">
+                <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
+                <span className="text-sm font-medium">File Name</span>
+              </div>
+              <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
+            </div>
           </div>
         </div>
       </div>
