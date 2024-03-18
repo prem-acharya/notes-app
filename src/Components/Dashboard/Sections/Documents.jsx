@@ -4,6 +4,16 @@ import CreateNewFolderOutlinedIcon from "@mui/icons-material/CreateNewFolderOutl
 import FolderIcon from "@mui/icons-material/Folder";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import ImageIcon from '@mui/icons-material/Image';
+import DescriptionIcon from '@mui/icons-material/Description';
+import SlideshowIcon from '@mui/icons-material/Slideshow';
+import TableChartIcon from '@mui/icons-material/TableChart';
+import GifBoxIcon from '@mui/icons-material/GifBox';
+import MovieIcon from '@mui/icons-material/Movie';
+import MusicVideoIcon from '@mui/icons-material/MusicVideo';
+import FolderZipIcon from '@mui/icons-material/FolderZip';
+import TerminalIcon from '@mui/icons-material/Terminal';
 import { storage, firestore } from '../../../firebase';
 import { ref, uploadBytes } from 'firebase/storage';
 import { collection, addDoc, query, where, getDocs } from 'firebase/firestore';
@@ -55,6 +65,51 @@ const Documents = () => {
     }
   };
 
+  const getFileIcon = (fileName) => {
+    const extension = fileName.split('.').pop().toLowerCase();
+    switch (extension) {
+      case 'pdf':
+        return <PictureAsPdfIcon />;
+      case 'png':
+      case 'jpg':
+      case 'jpeg':
+        return <ImageIcon />;
+      case 'mp4':
+        return <MovieIcon />;
+      case 'mp3':
+        return <MusicVideoIcon />;
+      case 'docx':
+        return <DescriptionIcon />;
+      case 'pptx':
+        return <SlideshowIcon />;
+      case 'xlsx':
+        return <TableChartIcon />;
+      case 'gif':
+        return <GifBoxIcon />;
+      case 'zip':
+        return <FolderZipIcon />;
+      case 'py':
+      case 'c':
+      case 'html':
+      case 'c#':
+      case 'cpp':
+      case 'css':
+      case 'js':
+      case 'jsx':
+      case 'ts':
+      case 'tsx':
+      case 'json':
+      case 'dart':
+      case 'md':
+      case 'yaml':
+      case 'cc':
+      case 'php':
+        return <TerminalIcon />;
+      default:
+        return <InsertDriveFileIcon />;
+    }
+  };
+
   return (
     <div className="bg-white p-5 rounded-md absolute top-20 left-5 md:left-72 right-5 md:right-5">
       <div className="flex md:flex-row justify-between items-center mb-4">
@@ -101,8 +156,8 @@ const Documents = () => {
             {userFiles.map(file => (
               <div key={file.id} className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
                 <div className="flex items-center">
-                  <InsertDriveFileIcon className="text-blue-400 text-2xl mr-2" />
-                  <span className="text-sm font-medium" title={file.name}>{file.name.slice(0, 12)}{file.name.length > 12 ? '...' : ''}</span>
+                  <div className="text-blue-400">{getFileIcon(file.name)}</div>
+                  <span className="text-sm ml-2 font-medium" title={file.name}>{file.name.slice(0, 10)}{file.name.length > 12 ? '...' : ''}</span>
                 </div>
                 <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
               </div>
