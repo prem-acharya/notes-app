@@ -150,14 +150,14 @@ const Documents = () => {
           </div>
         </div>
         {/* Files Section */}
-        <div className="mt-6 cursor-pointer">
+        <div className="mt-6 ml-2 mr-2 cursor-pointer">
           <h3 className="text-lg font-semibold mb-2">Files</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {userFiles.map(file => (
-              <div key={file.id} className="bg-gray-100 hover:bg-gray-200 rounded-md p-4 flex justify-between items-center">
+              <div key={file.id} className="bg-blue-50 hover:bg-gray-200 shadow-md hover:scale-105 transition-transform transform rounded-md p-4 flex justify-between items-center">
                 <div className="flex items-center">
-                  <div className="text-blue-400">{getFileIcon(file.name)}</div>
-                  <span className="text-sm ml-2 font-medium" title={file.name}>{file.name.slice(0, 10)}{file.name.length > 12 ? '...' : ''}</span>
+                  <div className="text-blue-400 mr-2">{getFileIcon(file.name)}</div>
+                  <span className="text-sm font-medium" title={file.name}>{file.name.slice(0, 12)}{file.name.length > 12 ? '...' : ''}</span>
                 </div>
                 <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
               </div>
