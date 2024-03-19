@@ -87,8 +87,8 @@ const Header = () => {
         {(isDesktopOrLaptop || !isTablet) && (
           <div className="flex">
             Hello,
-            <div className="text-blue-500 ml-1 font-medium">
-              {username.toUpperCase()}
+            <div className="text-blue-500 ml-1 uppercase font-medium">
+              {username}
             </div>
           </div>
         )}
@@ -116,8 +116,8 @@ const Header = () => {
                 className="absolute top-0 right-0 m-2 cursor-pointer"
                 onClick={() => setShowUserInfo(false)}
               />
-              <div className="mb-4 text-white w-24 h-24  bg-blue-300 hover:bg-blue-400 rounded-full flex items-center justify-center" style={{ fontSize: "5rem" }}>
-                {username ? username[0].toUpperCase() : <AccountCircleIcon />}
+              <div className="mb-4 text-white w-24 h-24 uppercase bg-blue-300 hover:bg-blue-400 rounded-full flex items-center justify-center" style={{ fontSize: "5rem" }}>
+                {username ? username[0] : <AccountCircleIcon />}
               </div>
               <div className="text-gray-700 font-medium mb-1">
                 {truncatedEmail}...

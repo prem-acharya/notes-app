@@ -4,23 +4,23 @@ import CreateNewFolderOutlinedIcon from "@mui/icons-material/CreateNewFolderOutl
 import FolderIcon from "@mui/icons-material/Folder";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
-import ImageIcon from '@mui/icons-material/Image';
-import DescriptionIcon from '@mui/icons-material/Description';
-import SlideshowIcon from '@mui/icons-material/Slideshow';
-import TableChartIcon from '@mui/icons-material/TableChart';
-import GifBoxIcon from '@mui/icons-material/GifBox';
-import MovieIcon from '@mui/icons-material/Movie';
-import MusicVideoIcon from '@mui/icons-material/MusicVideo';
-import FolderZipIcon from '@mui/icons-material/FolderZip';
-import TerminalIcon from '@mui/icons-material/Terminal';
-import { storage, firestore } from '../../../firebase';
-import { ref, uploadBytes } from 'firebase/storage';
-import { collection, addDoc, query, where, getDocs } from 'firebase/firestore';
-import { useAuth } from '../../../Components/Authentication/AuthContext';
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import ImageIcon from "@mui/icons-material/Image";
+import DescriptionIcon from "@mui/icons-material/Description";
+import SlideshowIcon from "@mui/icons-material/Slideshow";
+import TableChartIcon from "@mui/icons-material/TableChart";
+import GifBoxIcon from "@mui/icons-material/GifBox";
+import MovieIcon from "@mui/icons-material/Movie";
+import MusicVideoIcon from "@mui/icons-material/MusicVideo";
+import FolderZipIcon from "@mui/icons-material/FolderZip";
+import TerminalIcon from "@mui/icons-material/Terminal";
+import { storage, firestore } from "../../../firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
+import { useAuth } from "../../../Components/Authentication/AuthContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
 const Documents = () => {
   const { currentUser } = useAuth(); // Use useAuth to access currentUser
@@ -28,9 +28,15 @@ const Documents = () => {
 
   const fetchFiles = async () => {
     if (!currentUser) return;
-    const q = query(collection(firestore, "files"), where("userId", "==", currentUser.uid));
+    const q = query(
+      collection(firestore, "files"),
+      where("userId", "==", currentUser.uid)
+    );
     const querySnapshot = await getDocs(q);
-    const files = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const files = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
     setUserFiles(files);
   };
 
@@ -43,9 +49,13 @@ const Documents = () => {
     if (!file) return;
 
     const fileId = uuidv4();
-    const storageRef = ref(storage, `files/${currentUser.uid}/${fileId}-${file.name}`);
+    const storageRef = ref(
+      storage,
+      `files/${currentUser.uid}/${fileId}-${file.name}`
+    );
     try {
       await uploadBytes(storageRef, file);
+      const previewUrl = await getDownloadURL(storageRef);
 
       const fileMetadata = {
         name: file.name,
@@ -53,6 +63,7 @@ const Documents = () => {
         uid: fileId,
         uploadDate: new Date().toISOString(),
         userId: currentUser.uid,
+        previewUrl: previewUrl, // Include the preview URL in the file metadata
       };
 
       await addDoc(collection(firestore, "files"), fileMetadata);
@@ -65,45 +76,71 @@ const Documents = () => {
     }
   };
 
+  const FilePreview = ({ file }) => {
+    const [hasError, setHasError] = useState(false);
+
+    const renderFileIcon = () => (
+      <div className="flex justify-center items-center w-full h-32">
+        <div className="text-blue-500 opacity-50 text-6xl">
+          {getFileIcon(file.name)}
+        </div>
+      </div>
+    );
+
+    if (hasError || !file.previewUrl) {
+      // Render the file icon if there's an error or no preview URL
+      return renderFileIcon();
+    }
+
+    return (
+      <img
+        src={file.previewUrl}
+        alt={`Preview of ${file.name}`}
+        className="w-full h-32 object-cover"
+        onError={() => setHasError(true)}
+      />
+    );
+  };
+
   const getFileIcon = (fileName) => {
-    const extension = fileName.split('.').pop().toLowerCase();
+    const extension = fileName.split(".").pop().toLowerCase();
     switch (extension) {
-      case 'pdf':
+      case "pdf":
         return <PictureAsPdfIcon />;
-      case 'png':
-      case 'jpg':
-      case 'jpeg':
+      case "png":
+      case "jpg":
+      case "jpeg":
         return <ImageIcon />;
-      case 'mp4':
+      case "mp4":
         return <MovieIcon />;
-      case 'mp3':
+      case "mp3":
         return <MusicVideoIcon />;
-      case 'docx':
+      case "docx":
         return <DescriptionIcon />;
-      case 'pptx':
+      case "pptx":
         return <SlideshowIcon />;
-      case 'xlsx':
+      case "xlsx":
         return <TableChartIcon />;
-      case 'gif':
+      case "gif":
         return <GifBoxIcon />;
-      case 'zip':
+      case "zip":
         return <FolderZipIcon />;
-      case 'py':
-      case 'c':
-      case 'html':
-      case 'c#':
-      case 'cpp':
-      case 'css':
-      case 'js':
-      case 'jsx':
-      case 'ts':
-      case 'tsx':
-      case 'json':
-      case 'dart':
-      case 'md':
-      case 'yaml':
-      case 'cc':
-      case 'php':
+      case "py":
+      case "c":
+      case "html":
+      case "c#":
+      case "cpp":
+      case "css":
+      case "js":
+      case "jsx":
+      case "ts":
+      case "tsx":
+      case "json":
+      case "dart":
+      case "md":
+      case "yaml":
+      case "cc":
+      case "php":
         return <TerminalIcon />;
       default:
         return <InsertDriveFileIcon />;
@@ -132,7 +169,7 @@ const Documents = () => {
           </button>
         </div>
       </div>
-        <div className=" font-semibold text-blue-500">Home / ICT / Sem-8</div>
+      <div className=" font-semibold text-blue-500">Home / ICT / Sem-8</div>
       <hr />
       {/* Folders Section */}
       <div className="h-[68vh] overflow-y-scroll overflow-x-hidden ">
@@ -153,13 +190,29 @@ const Documents = () => {
         <div className="mt-6 ml-2 mr-2 cursor-pointer">
           <h3 className="text-lg font-semibold mb-2">Files</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {userFiles.map(file => (
-              <div key={file.id} className="bg-blue-50 hover:bg-gray-200 shadow-md hover:scale-105 transition-transform transform rounded-md p-4 flex justify-between items-center">
-                <div className="flex items-center">
-                  <div className="text-blue-400 mr-2">{getFileIcon(file.name)}</div>
-                  <span className="text-sm font-medium" title={file.name}>{file.name.slice(0, 12)}{file.name.length > 12 ? '...' : ''}</span>
+            {userFiles.map((file) => (
+              <div
+                key={file.id}
+                className="bg-blue-50 hover:bg-blue-100 shadow-md hover:scale-105 transition-transform transform rounded-md p-4 flex flex-col justify-between items-center"
+              >
+                <div className="w-full h-32 bg-gray-200 flex items-center justify-center overflow-hidden">
+                  <FilePreview file={file} />
                 </div>
-                <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
+                <div className="flex justify-between items-center w-full mt-2">
+                  <div className="flex items-center space-x-2">
+                    <div className="text-blue-400">
+                      {getFileIcon(file.name)}
+                    </div>
+                    <span
+                      className="text-sm font-medium truncate"
+                      title={file.name}
+                    >
+                      {file.name.slice(0, 15)}
+                      {file.name.length > 15 ? "..." : ""}
+                    </span>
+                  </div>
+                  <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
+                </div>
               </div>
             ))}
           </div>
