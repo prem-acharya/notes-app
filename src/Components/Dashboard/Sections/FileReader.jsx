@@ -1,6 +1,7 @@
 import React from "react";
-import ClearIcon from "@mui/icons-material/Clear"; // Import ClearIcon from Material UI
-import GetAppIcon from "@mui/icons-material/GetApp"; // Import GetAppIcon for download
+import ClearIcon from "@mui/icons-material/Clear";
+import GetAppIcon from "@mui/icons-material/GetApp";
+
 
 const FileReader = ({ file, onClose }) => {
   const renderContent = () => {
@@ -65,8 +66,8 @@ const FileReader = ({ file, onClose }) => {
     file.name.length > 15 ? `${file.name.slice(0, 65)}...` : file.name;
 
   return (
-    <div className="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="relative bg-white p-4 rounded-lg">
+    <div className="absolute inset-0 bg-gray-50 bg-opacity-70 flex justify-center items-center">
+      <div className="relative bg-blue-100 p-4 rounded-lg">
         <div className="flex justify-between items-center">
           <h2
             className="text-lg font-bold cursor-pointer mr-4"

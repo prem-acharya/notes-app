@@ -21,7 +21,7 @@ import { useAuth } from "../../../Components/Authentication/AuthContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { v4 as uuidv4 } from "uuid";
-import FileReader from "./FileReader"; // Import FileReader component
+import FileReader from "./FileReader";
 
 const Documents = () => {
   const { currentUser } = useAuth(); // Use useAuth to access currentUser

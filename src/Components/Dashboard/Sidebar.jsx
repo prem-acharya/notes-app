@@ -8,16 +8,21 @@ import ScheduleIcon from "@mui/icons-material/Schedule";
 import DocumentScannerIcon from "@mui/icons-material/DocumentScanner";
 import Documents from "./Sections/Documents";
 
-const Sidebar = () => {
+const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const [selectedOption, setSelectedOption] = useState("documents");
 
   const handleOptionClick = (option) => {
     setSelectedOption(option);
+    setIsSidebarOpen(!isSidebarOpen);
   };
 
   return (
     <div className="flex h-screen">
-      <div className="fixed inset-y-0 left-0 w-64 bg-blue-50 p-5 flex-col cursor-pointer transition duration-300 transform -translate-x-full md:relative md:translate-x-0 md:w-64 md:flex md:flex-col">
+      <div
+        className={`fixed bottom-0 z-50 left-0 w-64 bg-blue-50 p-5 flex-col cursor-pointer  ${
+          isSidebarOpen ? "translate-x-0 top-20" : "-translate-x-full top-0"
+        } md:relative md:translate-x-0 md:w-64 md:flex md:flex-col`}
+      >
         <div className="flex items-center mb-3">
           <span className="font-bold text-lg">My Notes</span>
         </div>

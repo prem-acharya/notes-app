@@ -4,15 +4,15 @@ import SearchIcon from "@mui/icons-material/Search";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import MenuIcon from "@mui/icons-material/Menu";
 import Notes from "../../assets/logo1.png";
-import { firestore as db } from "../../firebase"; // Adjust the path as necessary
+import { firestore as db } from "../../firebase";
 import { doc, getDoc } from "firebase/firestore";
-import { useAuth } from "../Authentication/AuthContext"; // Adjust the path as necessary
-import ExitToAppIcon from "@material-ui/icons/ExitToApp"; // Add this import
-import { signOut, getAuth } from "firebase/auth"; // Add this import
-import ClearIcon from "@mui/icons-material/Clear"; // Make sure to import ClearIcon
-import { Link } from "react-router-dom"; // Make sure to import Link
+import { useAuth } from "../Authentication/AuthContext";
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
+import { signOut, getAuth } from "firebase/auth";
+import ClearIcon from "@mui/icons-material/Clear";
+// import { Link } from "react-router-dom";
 
-const Header = () => {
+const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const [username, setUsername] = useState("");
   const { currentUser } = useAuth(); // Use the useAuth hook to get the current user
   const [showUserInfo, setShowUserInfo] = useState(false);
@@ -64,7 +64,11 @@ const Header = () => {
 
   return (
     <div className="flex justify-between items-center p-4 bg-blue-50">
-      {isMobile && <MenuIcon className="text-gray-500" />}
+      {isMobile && (
+        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+          <MenuIcon className="text-gray-500" />
+        </button>
+      )}
       <div className="flex ml-4 cursor-pointer">
         {(isDesktopOrLaptop || !isTablet) && (
           <>
