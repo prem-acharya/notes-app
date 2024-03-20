@@ -14,8 +14,9 @@ import MovieIcon from "@mui/icons-material/Movie";
 import MusicVideoIcon from "@mui/icons-material/MusicVideo";
 import FolderZipIcon from "@mui/icons-material/FolderZip";
 import TerminalIcon from "@mui/icons-material/Terminal";
+import ClearIcon from "@mui/icons-material/Clear";
 import { storage, firestore } from "../../../firebase";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
 import { useAuth } from "../../../Components/Authentication/AuthContext";
 import { ToastContainer, toast } from "react-toastify";
@@ -28,6 +29,10 @@ const Documents = () => {
   const [userFiles, setUserFiles] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null); // State to hold the selected file
   const [showFileReader, setShowFileReader] = useState(false); // State to control the visibility of the FileReader component
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  let uploadTask = null; // This will hold the reference to the upload task
 
   const fetchFiles = async () => {
     if (!currentUser) return;
@@ -47,67 +52,87 @@ const Documents = () => {
     fetchFiles();
   }, [currentUser]);
 
-  const handleFileUpload = async (e) => {
+  const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     const fileId = uuidv4();
-    const storageRef = ref(
-      storage,
-      `files/${currentUser.uid}/${fileId}-${file.name}`
+    const storageRef = ref(storage, `files/${currentUser.uid}/${fileId}-${file.name}`);
+    uploadTask = uploadBytesResumable(storageRef, file);
+
+    setIsUploading(true); // Start uploading
+
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        // Get upload progress
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setUploadProgress(progress);
+      },
+      (error) => {
+        // Handle unsuccessful uploads
+        toast.error("File upload failed! ❌");
+        setIsUploading(false);
+      },
+      () => {
+        // Handle successful uploads on complete
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          const fileMetadata = {
+            name: file.name,
+            size: file.size,
+            uid: fileId,
+            uploadDate: new Date().toISOString(),
+            userId: currentUser.uid,
+            previewUrl: downloadURL, // Include the preview URL in the file metadata
+          };
+
+          addDoc(collection(firestore, "files"), fileMetadata);
+          toast.success("File uploaded successfully! 📄");
+          fetchFiles(); // Fetch files again to update the list in real time
+          setIsUploading(false); // End uploading
+        });
+      }
     );
-    try {
-      await uploadBytes(storageRef, file);
-      const previewUrl = await getDownloadURL(storageRef);
-
-      const fileMetadata = {
-        name: file.name,
-        size: file.size,
-        uid: fileId,
-        uploadDate: new Date().toISOString(),
-        userId: currentUser.uid,
-        previewUrl: previewUrl, // Include the preview URL in the file metadata
-      };
-
-      await addDoc(collection(firestore, "files"), fileMetadata);
-      toast.success("File uploaded successfully! 📄");
-
-      // Fetch files again to update the list in real time
-      fetchFiles();
-    } catch (error) {
-      toast.error("File upload failed! ❌");
-    }
   };
+
+  // const cancelUpload = () => {
+  //   if (uploadTask) {
+  //     uploadTask.cancel();
+  //     setIsUploading(false);
+  //     setUploadProgress(0);
+  //     setShowCancelDialog(false); // Hide the cancel dialog
+  //   }
+  // };
 
   const handleFileClick = (file) => {
     setSelectedFile(file);
     setShowFileReader(true);
   };
 
-  const FilePreview = ({ file }) => {
-    const [hasError, setHasError] = useState(false);
+  // const FilePreview = ({ file }) => {
+  //   const [hasError, setHasError] = useState(false);
 
-    const renderFileIcon = () => (
-      <div className="flex justify-center items-center w-full h-32 bg-gray-200">
-        <div className="opacity-50 text-blue-500 text-6xl">
-          {getFileIcon(file.name)}
-        </div>
-      </div>
-    );
+  //   const renderFileIcon = () => (
+  //     <div className="flex justify-center items-center w-full h-32 bg-gray-200">
+  //       <div className="opacity-50 text-blue-500 text-6xl">
+  //         {getFileIcon(file.name)}
+  //       </div>
+  //     </div>
+  //   );
 
-    if (hasError || !file.previewUrl) {
-      return renderFileIcon();
-    }
+  //   if (hasError || !file.previewUrl) {
+  //     return renderFileIcon();
+  //   }
 
-    return (
-      <img
-        src={file.previewUrl}
-        alt={`Preview of ${file.name}`}
-        className="w-full h-32 object-cover"
-        onError={() => setHasError(true)}
-      />
-    );
-  };
+  //   return (
+  //     <img
+  //       src={file.previewUrl}
+  //       alt={`Preview of ${file.name}`}
+  //       className="w-full h-32 object-cover"
+  //       onError={() => setHasError(true)}
+  //     />
+  //   );
+  // };
 
   const getFileIcon = (fileName) => {
     const extension = fileName.split(".").pop().toLowerCase();
@@ -209,9 +234,9 @@ const Documents = () => {
                   className="bg-blue-50 hover:bg-blue-100 shadow-md hover:scale-105 transition-transform transform rounded-md p-4 flex flex-col justify-between items-center"
                   onClick={() => handleFileClick(file)}
                 >
-                  <div className="w-full h-32 bg-gray-200 flex items-center justify-center overflow-hidden">
+                  {/* <div className="w-full h-32 bg-gray-200 flex items-center justify-center overflow-hidden">
                     <FilePreview file={file} />
-                  </div>
+                  </div> */}
                   <div className="flex justify-between items-center w-full mt-2">
                     <div className="flex items-center space-x-2">
                       <div className="text-blue-400">
@@ -240,6 +265,45 @@ const Documents = () => {
         )}
         <ToastContainer />
       </div>
+      {isUploading && (
+        <div className="fixed bottom-5 right-5 bg-blue-100 p-8 shadow-lg rounded-md">
+          <div className="flex items-center text-xl justify-between">
+            <span className="ml-4">Uploading...</span>
+            <span className="mr-4">{Math.round(uploadProgress)}%</span>
+            <button onClick={() => setShowCancelDialog(true)} title="Cancel upload">
+              <ClearIcon />
+            </button>
+          </div>
+          <div className="w-full mt-4 bg-gray-200 rounded-full h-4 dark:bg-gray-700">
+            <div
+              className="bg-blue-600 h-4 rounded-full"
+              style={{ width: `${uploadProgress}%` }}
+            ></div>
+          </div>
+        </div>
+      )}
+      {/* {showCancelDialog && (
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
+          <div className="bg-white p-4 rounded-lg shadow-xl">
+            <h3 className="text-lg font-bold mb-4">Cancel upload?</h3>
+            <p>Your upload is not complete. Would you like to cancel the upload?</p>
+            <div className="flex justify-end mt-4">
+              <button
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
+                onClick={() => setShowCancelDialog(false)}
+              >
+                Continue upload
+              </button>
+              <button
+                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                onClick={cancelUpload}
+              >
+                Cancel upload
+              </button>
+            </div>
+          </div>
+        </div>
+      )} */}
     </div>
   );
 };

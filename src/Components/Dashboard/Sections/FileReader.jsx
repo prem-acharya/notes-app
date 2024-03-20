@@ -2,6 +2,8 @@ import React from "react";
 import ClearIcon from "@mui/icons-material/Clear";
 import GetAppIcon from "@mui/icons-material/GetApp";
 
+// https://www.npmjs.com/package/react-doc-viewer
+// https://www.npmjs.com/package/react-file-reader
 
 const FileReader = ({ file, onClose }) => {
   const renderContent = () => {
@@ -39,16 +41,16 @@ const FileReader = ({ file, onClose }) => {
             Your browser does not support the video tag.
           </video>
         );
-      case "txt":
+      // case "txt":
         // Assuming the content of the txt file is passed as a string in file.content
         // This might require fetching the content separately or adjusting how files are handled
-        return (
-          <pre className="text-left whitespace-pre-wrap">{file.content}</pre>
-        );
+        // return (
+        //   <pre className="text-left whitespace-pre-wrap">{file.content}</pre>
+        // );
       // For unsupported formats, consider providing a download link or instructions
       default:
         return (
-          <div>
+          <div className="m-12">
             <p>File format not supported for preview.</p>
             <a
               href={file.previewUrl}
