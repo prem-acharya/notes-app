@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import DescriptionIcon from "@mui/icons-material/Description";
 import ShareIcon from "@mui/icons-material/Share";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
@@ -6,10 +6,9 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import StorageIcon from "@mui/icons-material/Storage";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import DocumentScannerIcon from "@mui/icons-material/DocumentScanner";
-import Documents from "./Sections/Documents";
+import Documents from "./Sections/Documents/Documents";
 
-const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
-  const [selectedOption, setSelectedOption] = useState("documents");
+const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, selectedOption, setSelectedOption }) => {
 
   const handleOptionClick = (option) => {
     setSelectedOption(option);
@@ -20,7 +19,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     <div className="flex h-screen">
       <div
         className={`fixed bottom-0 z-50 left-0 w-64 bg-blue-50 p-5 flex-col cursor-pointer  ${
-          isSidebarOpen ? "translate-x-0 top-20" : "-translate-x-full top-0"
+          isSidebarOpen ? "translate-x-0 top-0" : "-translate-x-full top-0"
         } md:relative md:translate-x-0 md:w-64 md:flex md:flex-col`}
       >
         <div className="flex items-center mb-3">

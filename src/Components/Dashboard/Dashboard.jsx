@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import Header from './Header';
+import Documents from './Sections/Documents/Documents';
+import FileReader from './Sections/Documents/FileReader';
 // import MainContent from './MainContent';
-import Documents from './Sections/Documents'; // Import Documents
-import FileReader from './Sections/FileReader'; // Import FileReader
 
 const Dashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null); // State for selected file
+  const [selectedOption, setSelectedOption] = useState("documents");
 
   return (
     <div className="flex flex-col h-screen">
@@ -19,9 +20,12 @@ const Dashboard = () => {
         <Sidebar
           isSidebarOpen={isSidebarOpen}
           setIsSidebarOpen={setIsSidebarOpen}
+          selectedOption={selectedOption} // Pass selectedOption to Sidebar
+          setSelectedOption={setSelectedOption} // Pass setSelectedOption to Sidebar
         />
-        <Documents setSelectedFile={setSelectedFile} /> {/* Pass setSelectedFile to Documents */}
-        {/* <MainContent /> */}
+        {/* Conditional rendering based on selectedOption */}
+        {selectedOption === "documents" && <Documents setSelectedFile={setSelectedFile} />}
+        {/* Add similar conditions for other options like "scanner", "recent", etc. */}
       </div>
       {selectedFile && (
         <FileReader
