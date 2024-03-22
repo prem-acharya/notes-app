@@ -31,7 +31,7 @@ const FileReader = ({ file, onClose }) => {
         );
       case "mp3":
         return (
-          <audio controls src={file.previewUrl} className="max-w-full h-24">
+          <audio controls src={file.previewUrl} className="max-w-full h-18">
             Your browser does not support the audio element.
           </audio>
         );
@@ -68,7 +68,7 @@ const FileReader = ({ file, onClose }) => {
     file.name.length > 15 ? `${file.name.slice(0, 65)}...` : file.name;
 
   return (
-    <div className="absolute inset-0 bg-gray-50 bg-opacity-70 flex justify-center items-center">
+    <div className="absolute inset-0 z-50 bg-gray-50 bg-opacity-70 flex justify-center items-center">
       <div className="relative bg-blue-100 p-4 rounded-lg">
         <div className="flex justify-between items-center">
           <h2

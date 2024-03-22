@@ -22,17 +22,14 @@ import { useAuth } from "../../../Components/Authentication/AuthContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { v4 as uuidv4 } from "uuid";
-import FileReader from "./FileReader";
 
-const Documents = () => {
+const Documents = ({ setSelectedFile }) => {
   const { currentUser } = useAuth(); // Use useAuth to access currentUser
   const [userFiles, setUserFiles] = useState([]);
-  const [selectedFile, setSelectedFile] = useState(null); // State to hold the selected file
-  const [showFileReader, setShowFileReader] = useState(false); // State to control the visibility of the FileReader component
+  const uploadTaskRef = useRef(null); // Use useRef to persist the upload task reference
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
-  const uploadTaskRef = useRef(null); // Use useRef to persist the upload task reference
 
   const fetchFiles = async () => {
     if (!currentUser) return;
@@ -106,7 +103,6 @@ const Documents = () => {
 
   const handleFileClick = (file) => {
     setSelectedFile(file);
-    setShowFileReader(true);
   };
 
   // const FilePreview = ({ file }) => {
@@ -182,7 +178,7 @@ const Documents = () => {
 
   return (
     <div className="bg-white p-5 rounded-md absolute top-20 left-5 md:left-72 right-5 md:right-5">
-      <div className={`relative ${showFileReader ? "blur-sm" : ""} `}>
+      <div className={`relative`}>
         <div className="flex md:flex-row justify-between items-center mb-4">
           <h2 className="text-xl font-semibold mb-4 md:mb-0">My Documents</h2>
           <div className="flex space-x-4">
@@ -257,12 +253,6 @@ const Documents = () => {
             </div>
           </div>
         </div>
-        {showFileReader && (
-          <FileReader
-            file={selectedFile}
-            onClose={() => setShowFileReader(false)}
-          />
-        )}
         <ToastContainer />
       </div>
       {isUploading && (
