@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import CreateNewFolderOutlinedIcon from "@mui/icons-material/CreateNewFolderOutlined";
 import FolderIcon from "@mui/icons-material/Folder";
@@ -32,7 +32,7 @@ const Documents = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
-  let uploadTask = null; // This will hold the reference to the upload task
+  const uploadTaskRef = useRef(null); // Use useRef to persist the upload task reference
 
   const fetchFiles = async () => {
     if (!currentUser) return;
@@ -58,11 +58,11 @@ const Documents = () => {
 
     const fileId = uuidv4();
     const storageRef = ref(storage, `files/${currentUser.uid}/${fileId}-${file.name}`);
-    uploadTask = uploadBytesResumable(storageRef, file);
+    uploadTaskRef.current = uploadBytesResumable(storageRef, file);
 
     setIsUploading(true); // Start uploading
 
-    uploadTask.on(
+    uploadTaskRef.current.on(
       "state_changed",
       (snapshot) => {
         // Get upload progress
@@ -76,7 +76,7 @@ const Documents = () => {
       },
       () => {
         // Handle successful uploads on complete
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+        getDownloadURL(uploadTaskRef.current.snapshot.ref).then((downloadURL) => {
           const fileMetadata = {
             name: file.name,
             size: file.size,
@@ -95,14 +95,14 @@ const Documents = () => {
     );
   };
 
-  // const cancelUpload = () => {
-  //   if (uploadTask) {
-  //     uploadTask.cancel();
-  //     setIsUploading(false);
-  //     setUploadProgress(0);
-  //     setShowCancelDialog(false); // Hide the cancel dialog
-  //   }
-  // };
+  const cancelUpload = () => {
+    if (uploadTaskRef.current) {
+      uploadTaskRef.current.cancel(); // Use the ref to access the current upload task
+      setIsUploading(false);
+      setUploadProgress(0);
+      setShowCancelDialog(false); // Hide the cancel dialog
+    }
+  };
 
   const handleFileClick = (file) => {
     setSelectedFile(file);
@@ -274,36 +274,36 @@ const Documents = () => {
               <ClearIcon />
             </button>
           </div>
-          <div className="w-full mt-4 bg-gray-200 rounded-full h-4 dark:bg-gray-700">
+          <div className="w-full mt-4 bg-gray-200 rounded-full h-2 dark:bg-gray-700">
             <div
-              className="bg-blue-600 h-4 rounded-full"
+              className="bg-blue-600 h-2 rounded-full"
               style={{ width: `${uploadProgress}%` }}
             ></div>
           </div>
         </div>
       )}
-      {/* {showCancelDialog && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
+      {showCancelDialog && (
+        <div className="fixed inset-0 bg-gray-50 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-4 rounded-lg shadow-xl">
-            <h3 className="text-lg font-bold mb-4">Cancel upload?</h3>
+            <h3 className="text-lg font-bold mb-4">Cancel Upload?</h3>
             <p>Your upload is not complete. Would you like to cancel the upload?</p>
             <div className="flex justify-end mt-4">
               <button
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
                 onClick={() => setShowCancelDialog(false)}
               >
-                Continue upload
+                Continue Upload
               </button>
               <button
-                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                className="font-bold py-2 px-4 rounded border-2 border-blue-500 hover:border-red-500"
                 onClick={cancelUpload}
               >
-                Cancel upload
+                Cancel Upload
               </button>
             </div>
           </div>
         </div>
-      )} */}
+      )}
     </div>
   );
 };
