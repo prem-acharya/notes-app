@@ -1,6 +1,6 @@
 import React from "react";
 import DescriptionIcon from "@mui/icons-material/Description";
-import ShareIcon from "@mui/icons-material/Share";
+import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import StorageIcon from "@mui/icons-material/Storage";
@@ -38,25 +38,17 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, selectedOption, setSelectedO
             className={`flex items-center py-2 text-gray-700 hover:bg-gray-200 rounded-md ${
               selectedOption === "scanner" ? "bg-gray-200" : ""
             }`}
-            onClick={() => handleOptionClick("scanner")}
+            onClick={() => handleOptionClick("camera")}
           >
-            <DocumentScannerIcon className="mr-2" /> Scanner
-          </div>
-          <div
-            className={`flex items-center py-2 text-gray-700 hover:bg-gray-200 rounded-md ${
-              selectedOption === "recent" ? "bg-gray-200" : ""
-            }`}
-            onClick={() => handleOptionClick("recent")}
-          >
-            <ScheduleIcon className="mr-2" /> Recent
+            <CameraAltIcon className="mr-2" /> Camera
           </div>
           <div
             className={`flex items-center py-2 text-gray-700 hover:bg-gray-200 rounded-md ${
               selectedOption === "shared" ? "bg-gray-200" : ""
             }`}
-            onClick={() => handleOptionClick("shared")}
+            onClick={() => handleOptionClick("scandocuments")}
           >
-            <ShareIcon className="mr-2" /> Shared with me
+            <DocumentScannerIcon className="mr-2" /> Scan Documents
           </div>
           <div
             className={`flex items-center py-2 text-gray-700 hover:bg-gray-200 rounded-md ${
@@ -65,6 +57,14 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, selectedOption, setSelectedO
             onClick={() => handleOptionClick("starred")}
           >
             <StarBorderIcon className="mr-2" /> Starred
+          </div>
+          <div
+            className={`flex items-center py-2 text-gray-700 hover:bg-gray-200 rounded-md ${
+              selectedOption === "recent" ? "bg-gray-200" : ""
+            }`}
+            onClick={() => handleOptionClick("recent")}
+          >
+            <ScheduleIcon className="mr-2" /> Recent
           </div>
           <div
             className={`flex items-center py-2 text-gray-700 hover:bg-gray-200 rounded-md ${
@@ -92,9 +92,9 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, selectedOption, setSelectedO
           {selectedOption === "documents" && (
             <div className="bg-white p-5 rounded-md"><Documents /></div>
           )}
-          {selectedOption === "scanner" && (
+          {selectedOption === "camera" && (
             <div className="bg-white p-5 rounded-md">
-              <h2>Scanner Content</h2>
+              <h2>Camera</h2>
             </div>
           )}
           {selectedOption === "recent" && (
@@ -102,9 +102,9 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, selectedOption, setSelectedO
               <h2>Recent Content</h2>
             </div>
           )}
-          {selectedOption === "shared" && (
+          {selectedOption === "scandocuments" && (
             <div className="bg-white p-5 rounded-md">
-              <h2>Shared Content</h2>
+              <h2>Scan Documents</h2>
             </div>
           )}
           {selectedOption === "starred" && (

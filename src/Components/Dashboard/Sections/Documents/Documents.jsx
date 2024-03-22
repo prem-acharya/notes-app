@@ -34,13 +34,15 @@ const Documents = ({ setSelectedFile }) => {
   const [showCreateFolderModal, setShowCreateFolderModal] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
   const [isCreateFolder, setIsCreateFolder] = useState(false);
+  const [currentFolderId, setCurrentFolderId] = useState(null);
 
   const fetchFilesAndFolders = async () => {
     if (!currentUser) return;
 
     const q = query(
       collection(firestore, "files"),
-      where("userId", "==", currentUser.uid)
+      where("userId", "==", currentUser.uid),
+      where("folderId", "==", currentFolderId || "root")
     );
     const querySnapshot = await getDocs(q);
     const files = querySnapshot.docs.map((doc) => ({
@@ -51,7 +53,8 @@ const Documents = ({ setSelectedFile }) => {
 
     const foldersQuery = query(
       collection(firestore, "folders"),
-      where("userId", "==", currentUser.uid)
+      where("userId", "==", currentUser.uid),
+      where("parentId", "==", currentFolderId || "root")
     );
     const foldersSnapshot = await getDocs(foldersQuery);
     const foldersData = foldersSnapshot.docs.map((doc) => ({
@@ -63,17 +66,21 @@ const Documents = ({ setSelectedFile }) => {
 
   useEffect(() => {
     fetchFilesAndFolders();
-  }, [currentUser]);
+  }, [currentUser, currentFolderId]);
+
+  const handleFolderClick = (folderId) => {
+    setCurrentFolderId(folderId);
+  };
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     const fileId = uuidv4();
-    const storageRef = ref(
-      storage,
-      `files/${currentUser.uid}/${fileId}-${file.name}`
-    );
+    const filePath = currentFolderId
+      ? `files/${currentUser.uid}/${currentFolderId}/${fileId}-${file.name}`
+      : `files/${currentUser.uid}/${fileId}-${file.name}`;
+    const storageRef = ref(storage, filePath);
     uploadTaskRef.current = uploadBytesResumable(storageRef, file);
 
     setIsUploading(true); // Start uploading
@@ -102,6 +109,7 @@ const Documents = ({ setSelectedFile }) => {
               uploadDate: new Date().toISOString(),
               userId: currentUser.uid,
               previewUrl: downloadURL, // Include the preview URL in the file metadata
+              folderId: currentFolderId || "root", // Include the current folder ID
             };
 
             addDoc(collection(firestore, "files"), fileMetadata);
@@ -210,12 +218,15 @@ const Documents = ({ setSelectedFile }) => {
     }
 
     const folderId = uuidv4();
-    const folderPath = ref(storage, `folders/${currentUser.uid}/${folderId}`);
+    const folderPath = currentFolderId
+      ? `folders/${currentUser.uid}/${currentFolderId}/${folderId}`
+      : `folders/${currentUser.uid}/${folderId}`;
     const folderRef = ref(storage, folderPath);
     const folderData = {
       name: newFolderName,
       userId: currentUser.uid,
       folderId: folderId,
+      parentId: currentFolderId || "root",
       creationDate: new Date().toISOString(),
     };
 
@@ -280,7 +291,7 @@ const Documents = ({ setSelectedFile }) => {
             <h3 className="text-lg font-semibold mb-2">Folders</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {folders.map((folder) => (
-                <div key={folder.id} className="bg-blue-50 hover:bg-blue-100 shadow-md hover:scale-105 transition-transform transform rounded-md p-4 flex justify-between items-center">
+                <div key={folder.id} className="bg-blue-50 hover:bg-blue-100 shadow-md hover:scale-105 transition-transform transform rounded-md p-4 flex justify-between items-center" onClick={() => handleFolderClick(folder.id)}>
                   <div className="flex items-center ">
                     <FolderIcon className="text-blue-400 text-2xl mr-2" />
                     <span className="text-sm font-medium" title={folder.name}>
@@ -303,9 +314,6 @@ const Documents = ({ setSelectedFile }) => {
                   className="bg-blue-50 hover:bg-blue-100 shadow-md hover:scale-105 transition-transform transform rounded-md p-4 flex flex-col justify-between items-center"
                   onClick={() => handleFileClick(file)}
                 >
-                  {/* <div className="w-full h-32 bg-gray-200 flex items-center justify-center overflow-hidden mb-2">
-                    <FilePreview file={file} />
-                  </div> */}
                   <div className="flex justify-between items-center w-full">
                     <div className="flex items-center space-x-2">
                       <div className="text-blue-400">
@@ -417,3 +425,5 @@ const Documents = ({ setSelectedFile }) => {
 };
 
 export default Documents;
+
+
