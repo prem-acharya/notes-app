@@ -15,6 +15,8 @@ import MusicVideoIcon from "@mui/icons-material/MusicVideo";
 import FolderZipIcon from "@mui/icons-material/FolderZip";
 import TerminalIcon from "@mui/icons-material/Terminal";
 import ClearIcon from "@mui/icons-material/Clear";
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { storage, firestore } from "../../../../firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
@@ -35,6 +37,7 @@ const Documents = ({ setSelectedFile }) => {
   const [newFolderName, setNewFolderName] = useState("");
   const [isCreateFolder, setIsCreateFolder] = useState(false);
   const [currentFolderId, setCurrentFolderId] = useState(null);
+  const [breadcrumbPath, setBreadcrumbPath] = useState([{ name: 'My Notes', id: 'root' }]);
 
   const fetchFilesAndFolders = async () => {
     if (!currentUser) return;
@@ -68,8 +71,99 @@ const Documents = ({ setSelectedFile }) => {
     fetchFilesAndFolders();
   }, [currentUser, currentFolderId]);
 
-  const handleFolderClick = (folderId) => {
+  const handleFolderClick = async (folderId, folderName) => {
     setCurrentFolderId(folderId);
+    // Add the new folder to the breadcrumb path
+    setBreadcrumbPath((prevPath) => [...prevPath, { name: folderName, id: folderId }]);
+    // Fetch the contents of the clicked folder
+    await fetchFilesAndFolders();
+  };
+
+  const handleBreadcrumbClick = async (folderId, index) => {
+    setCurrentFolderId(folderId);
+    // Trim the breadcrumb path to the selected index
+    setBreadcrumbPath((prevPath) => prevPath.slice(0, index + 1));
+    // Fetch the contents of the clicked folder
+    await fetchFilesAndFolders();
+  };
+
+  const Breadcrumb = ({ path, onBreadcrumbClick }) => {
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    const handleDropdownClick = () => {
+      setIsDropdownOpen(!isDropdownOpen);
+    };
+
+    useEffect(() => {
+      function handleClickOutside(event) {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+          setIsDropdownOpen(false);
+        }
+      }
+
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }, [dropdownRef]);
+
+    return (
+      <div className="flex space-x-2">
+        {path.length > 3 ? (
+          <>
+            <button
+              className="font-semibold text-blue-500 hover:bg-blue-100 px-2 hover:rounded-full hover:text-blue-600"
+              onClick={handleDropdownClick}
+            >
+              <MoreHorizIcon />
+            </button>
+            {isDropdownOpen && (
+              <div
+                className="absolute bg-white shadow-md rounded-md mt-1 z-10"
+                ref={dropdownRef}
+              >
+                {path.slice(0, -2).map((crumb, index) => (
+                  <div
+                    key={crumb.id}
+                    className="px-4 py-2 font-semibold text-blue-500 hover:bg-blue-50 cursor-pointer"
+                    onClick={() => onBreadcrumbClick(crumb.id, index)}
+                  >
+                    {crumb.name}
+                  </div>
+                ))}
+              </div>
+            )}
+            <span><ArrowForwardIosIcon className="" style={{ fontSize: "1rem" }} /></span>
+            <button
+              className="font-semibold text-blue-500 hover:bg-blue-100 px-2 hover:rounded-full hover:text-blue-600"
+              onClick={() => onBreadcrumbClick(path[path.length - 2].id, path.length - 2)}
+            >
+              {path[path.length - 2].name}
+            </button>
+            <span><ArrowForwardIosIcon className="" style={{ fontSize: "1rem" }} /></span>
+            <button
+              className="font-semibold text-blue-500 hover:bg-blue-100 px-2 hover:rounded-full hover:text-blue-600"
+              onClick={() => onBreadcrumbClick(path[path.length - 1].id, path.length - 1)}
+            >
+              {path[path.length - 1].name}
+            </button>
+          </>
+        ) : (
+          path.map((crumb, index) => (
+            <React.Fragment key={crumb.id}>
+              {index > 0 && <span><ArrowForwardIosIcon className="" style={{ fontSize: "1rem" }} /></span>}
+              <button
+                className="font-semibold text-blue-500 hover:bg-blue-100 px-2 hover:rounded-full hover:text-blue-600"
+                onClick={() => onBreadcrumbClick(crumb.id, index)}
+              >
+                {crumb.name}
+              </button>
+            </React.Fragment>
+          ))
+        )}
+      </div>
+    );
   };
 
   const handleFileUpload = (e) => {
@@ -122,20 +216,7 @@ const Documents = ({ setSelectedFile }) => {
     );
   };
 
-  const cancelUpload = () => {
-    if (uploadTaskRef.current) {
-      uploadTaskRef.current.cancel(); // Use the ref to access the current upload task
-      setIsUploading(false);
-      setUploadProgress(0);
-      setShowCancelDialog(false); // Hide the cancel dialog
-    }
-  };
-
-  const handleFileClick = (file) => {
-    setSelectedFile(file);
-  };
-
-  // const FilePreview = ({ file }) => {
+  //   const FilePreview = ({ file }) => {
   //   const [hasError, setHasError] = useState(false);
 
   //   const renderFileIcon = () => (
@@ -159,6 +240,19 @@ const Documents = ({ setSelectedFile }) => {
   //     />
   //   );
   // };
+
+  const cancelUpload = () => {
+    if (uploadTaskRef.current) {
+      uploadTaskRef.current.cancel(); // Use the ref to access the current upload task
+      setIsUploading(false);
+      setUploadProgress(0);
+      setShowCancelDialog(false); // Hide the cancel dialog
+    }
+  };
+
+  const handleFileClick = (file) => {
+    setSelectedFile(file);
+  };
 
   const getFileIcon = (fileName) => {
     const extension = fileName.split(".").pop().toLowerCase();
@@ -237,10 +331,6 @@ const Documents = ({ setSelectedFile }) => {
       // Create a placeholder file in Google Storage to represent the folder
       await uploadBytesResumable(folderRef, new Blob(["This is a placeholder for the folder structure."], { type: 'text/plain' }));
 
-      // Optionally, if you want to create a folder in Google Storage, you can do so here
-      // Note: Google Cloud Storage does not have a concept of folders, but you can use "/" in names to create a pseudo-folder structure
-      // await storageRef.child(`${folderId}/`).put(new Blob());
-
       toast.success("Folder created successfully!");
       fetchFilesAndFolders(); // Fetch files and folders again to update the list in real time
       setShowCreateFolderModal(false); // Close the modal
@@ -283,15 +373,17 @@ const Documents = ({ setSelectedFile }) => {
             </button>
           </div>
         </div>
-        <div className=" font-semibold text-blue-500">Home / ICT / Sem-8</div>
+        <Breadcrumb path={breadcrumbPath} onBreadcrumbClick={handleBreadcrumbClick} />
+        <div className="px-2">
         <hr />
+        </div>
         {/* Folders Section */}
         <div className="h-[68vh] overflow-y-scroll overflow-x-hidden ">
           <div className="mt-4 ml-2 mr-2 cursor-pointer">
             <h3 className="text-lg font-semibold mb-2">Folders</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {folders.map((folder) => (
-                <div key={folder.id} className="bg-blue-50 hover:bg-blue-100 shadow-md hover:scale-105 transition-transform transform rounded-md p-4 flex justify-between items-center" onClick={() => handleFolderClick(folder.id)}>
+                <div key={folder.id} className="bg-blue-50 hover:bg-blue-100 shadow-md hover:scale-105 transition-transform transform rounded-md p-4 flex justify-between items-center" onClick={() => handleFolderClick(folder.id, folder.name)}>
                   <div className="flex items-center ">
                     <FolderIcon className="text-blue-400 text-2xl mr-2" />
                     <span className="text-sm font-medium" title={folder.name}>
@@ -314,6 +406,9 @@ const Documents = ({ setSelectedFile }) => {
                   className="bg-blue-50 hover:bg-blue-100 shadow-md hover:scale-105 transition-transform transform rounded-md p-4 flex flex-col justify-between items-center"
                   onClick={() => handleFileClick(file)}
                 >
+                  {/* <div className="w-full h-32 bg-gray-200 flex items-center justify-center overflow-hidden mb-2">
+                    <FilePreview file={file} />
+                  </div> */}
                   <div className="flex justify-between items-center w-full">
                     <div className="flex items-center space-x-2">
                       <div className="text-blue-400">
@@ -337,7 +432,7 @@ const Documents = ({ setSelectedFile }) => {
         <ToastContainer />
       </div>
       {isUploading && (
-        <div className="fixed bottom-5 z-50 right-5 bg-blue-100 p-8 shadow-lg rounded-md">
+        <div className="fixed bottom-5 z-50 right-5 bg-blue-100 p-6 shadow-lg rounded-md">
           <div className="flex items-center text-xl justify-between">
             <span className="ml-4">Uploading...</span>
             <span className="mr-4">{Math.round(uploadProgress)}%</span>
@@ -425,5 +520,3 @@ const Documents = ({ setSelectedFile }) => {
 };
 
 export default Documents;
-
-

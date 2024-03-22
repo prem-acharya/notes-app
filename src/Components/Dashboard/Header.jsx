@@ -115,7 +115,7 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
             />
           )}
           {showUserInfo && (
-            <div className="absolute cursor-pointer right-0 mr-2 w-64 p-4 bg-blue-50 shadow-2xl rounded-xl flex flex-col items-center z-10">
+            <div className="absolute z-50 cursor-pointer right-0 mr-2 w-64 p-4 bg-blue-50 shadow-2xl rounded-xl flex flex-col items-center">
               <ClearIcon
                 className="absolute top-0 right-0 m-2 cursor-pointer"
                 onClick={() => setShowUserInfo(false)}
