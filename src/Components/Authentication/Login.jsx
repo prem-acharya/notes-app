@@ -73,6 +73,8 @@ const Login = () => {
     }
   };
 
+  document.title = "Notes App - Login";
+
   return (
     <div className="min-h-screen flex items-center justify-center space-x-4 bg-gray-100">
       <div className="flex flex-col md:flex-row bg-white rounded-xl shadow-custom overflow-hidden">

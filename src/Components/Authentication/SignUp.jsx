@@ -112,6 +112,8 @@ const Signup = () => {
     }
   };
 
+  document.title = "Notes App - SignUp";
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="flex flex-col lg:flex-row rounded-xl bg-white shadow-custom overflow-hidden">

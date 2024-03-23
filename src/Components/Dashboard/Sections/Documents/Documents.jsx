@@ -17,6 +17,12 @@ import TerminalIcon from "@mui/icons-material/Terminal";
 import ClearIcon from "@mui/icons-material/Clear";
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import DownloadIcon from '@mui/icons-material/Download';
+import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
+import ColorLensIcon from '@mui/icons-material/ColorLens';
+import StarBorderIcon from '@mui/icons-material/StarBorder';
+import StarRateIcon from '@mui/icons-material/StarRate';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { storage, firestore } from "../../../../firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
@@ -38,6 +44,44 @@ const Documents = ({ setSelectedFile }) => {
   const [isCreateFolder, setIsCreateFolder] = useState(false);
   const [currentFolderId, setCurrentFolderId] = useState(null);
   const [breadcrumbPath, setBreadcrumbPath] = useState([{ name: 'My Notes', id: 'root' }]);
+  const [dropdownOpen, setDropdownOpen] = useState(null);
+
+
+  const toggleDropdown = (folderId) => {
+    if (dropdownOpen === folderId) {
+      setDropdownOpen(null);
+    } else {
+      setDropdownOpen(folderId);
+    }
+  };
+
+  const FolderOptionsDropdown = ({ folderId }) => {
+    return (
+      <div
+        className={`absolute right-0 top-10 mb-2 w-48 bg-white rounded-md shadow-lg ${
+          dropdownOpen === folderId ? 'block' : 'hidden'
+        }`}
+      >
+        <div className="text-gray-700">
+          <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center">
+            <DownloadIcon className="mr-3" /> Download
+          </div>
+          <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center">
+            <DriveFileRenameOutlineIcon className="mr-3" /> Rename
+          </div>
+          <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center">
+            <ColorLensIcon className="mr-3" /> Folder Colors
+          </div>
+          <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center">
+            <StarBorderIcon className="mr-3" /> Add to starred
+          </div>
+          <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center">
+            <DeleteForeverIcon className="mr-3" /> Delete
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const fetchFilesAndFolders = async () => {
     if (!currentUser) return;
@@ -343,6 +387,8 @@ const Documents = ({ setSelectedFile }) => {
     }
   };
 
+  document.title = "Notes App - My Documents";
+
   return (
     <div className="bg-white p-5 rounded-md absolute top-20 left-5 md:left-72 right-5 md:right-5">
       <div className={`relative`}>
@@ -383,15 +429,16 @@ const Documents = ({ setSelectedFile }) => {
             <h3 className="text-lg font-semibold mb-2">Folders</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {folders.map((folder) => (
-                <div key={folder.id} className="bg-blue-50 hover:bg-blue-100 shadow-md hover:scale-105 transition-transform transform rounded-md p-4 flex justify-between items-center" onClick={() => handleFolderClick(folder.id, folder.name)}>
-                  <div className="flex items-center ">
+                <div key={folder.id} className="relative z-10 bg-blue-50 hover:bg-blue-100 shadow-md hover:scale-105 transition-transform transform rounded-md p-4 flex justify-between items-center">
+                  <div className="flex items-center"  onClick={() => handleFolderClick(folder.id, folder.name)}>
                     <FolderIcon className="text-blue-400 text-2xl mr-2" />
                     <span className="text-sm font-medium" title={folder.name}>
                     {folder.name.slice(0, 15)}
                     {folder.name.length > 15 ? "..." : ""}
                     </span>
                   </div>
-                  <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
+                  <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" onClick={() => toggleDropdown(folder.id)} />
+                  <FolderOptionsDropdown folderId={folder.id} />
                 </div>
               ))}
             </div>
