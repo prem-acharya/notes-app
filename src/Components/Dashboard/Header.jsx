@@ -20,8 +20,6 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
 
   const user = auth.currentUser;
 
-  const truncatedEmail = user?.email.substring(0, 22);
-
   const getInitials = (name) => {
     return name.charAt(0).toUpperCase();
   };
@@ -90,7 +88,7 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
       <div className="flex items-center">
         {(isDesktopOrLaptop || !isTablet) && (
           <div className="flex">
-            Hello,
+            Welcome,
             <div className="text-blue-500 ml-1 uppercase font-medium">
               {username}
             </div>
@@ -120,13 +118,25 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
                 className="absolute top-0 right-0 m-2 cursor-pointer"
                 onClick={() => setShowUserInfo(false)}
               />
-              <div className="mb-4 text-white w-24 h-24 uppercase bg-blue-300 hover:bg-blue-400 rounded-full flex items-center justify-center" style={{ fontSize: "5rem" }}>
+              <div
+                className="mb-4 text-white w-24 h-24 uppercase bg-blue-300 hover:bg-blue-400 rounded-full flex items-center justify-center"
+                style={{ fontSize: "5rem" }}
+              >
                 {username ? username[0] : <AccountCircleIcon />}
               </div>
-              <div className="text-gray-700 font-medium mb-1">
-                {truncatedEmail}...
+              <div
+                className="text-gray-700 hover:text-blue-500 font-medium mb-1"
+                title={user.email}
+              >
+                {user.email.slice(0, 22)}
+                {user.email.length > 22 ? "..." : ""}
               </div>
-              <div className="text-gray-700 mb-4">Welcome to Notes App</div>
+              <div className="flex text-gray-700 font-medium mb-4">
+                Username: <div className="text-blue-500 ml-1" title={username}>
+                {username.slice(0, 8)}
+                {username.length > 8 ? "..." : ""}
+                </div>
+              </div>
               <button
                 onClick={handleSignOut}
                 className="bg-blue-400 font-semibold hover:bg-blue-500 rounded-full p-2 text-white flex items-center"

@@ -17,12 +17,6 @@ import TerminalIcon from "@mui/icons-material/Terminal";
 import ClearIcon from "@mui/icons-material/Clear";
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import DownloadIcon from '@mui/icons-material/Download';
-import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
-import ColorLensIcon from '@mui/icons-material/ColorLens';
-import StarBorderIcon from '@mui/icons-material/StarBorder';
-import StarRateIcon from '@mui/icons-material/StarRate';
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { storage, firestore } from "../../../../firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
@@ -30,6 +24,7 @@ import { useAuth } from "../../../Authentication/AuthContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { v4 as uuidv4 } from "uuid";
+import FolderOptionsDropdown from './FolderOptionsDropdown';
 
 const Documents = ({ setSelectedFile }) => {
   const { currentUser } = useAuth(); // Use useAuth to access currentUser
@@ -53,34 +48,6 @@ const Documents = ({ setSelectedFile }) => {
     } else {
       setDropdownOpen(folderId);
     }
-  };
-
-  const FolderOptionsDropdown = ({ folderId }) => {
-    return (
-      <div
-        className={`absolute right-0 top-10 mb-2 w-48 bg-white rounded-md shadow-lg ${
-          dropdownOpen === folderId ? 'block' : 'hidden'
-        }`}
-      >
-        <div className="text-gray-700">
-          <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center">
-            <DownloadIcon className="mr-3" /> Download
-          </div>
-          <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center">
-            <DriveFileRenameOutlineIcon className="mr-3" /> Rename
-          </div>
-          <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center">
-            <ColorLensIcon className="mr-3" /> Folder Colors
-          </div>
-          <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center">
-            <StarBorderIcon className="mr-3" /> Add to starred
-          </div>
-          <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center">
-            <DeleteForeverIcon className="mr-3" /> Delete
-          </div>
-        </div>
-      </div>
-    );
   };
 
   const fetchFilesAndFolders = async () => {
@@ -178,7 +145,7 @@ const Documents = ({ setSelectedFile }) => {
                 ))}
               </div>
             )}
-            <span><ArrowForwardIosIcon className="" style={{ fontSize: "1rem" }} /></span>
+            <span><ArrowForwardIosIcon style={{ fontSize: "1rem" }} /></span>
             <button
               className="font-semibold text-blue-500 hover:bg-blue-100 px-2 hover:rounded-full hover:text-blue-600"
               onClick={() => onBreadcrumbClick(path[path.length - 2].id, path.length - 2)}
@@ -352,6 +319,7 @@ const Documents = ({ setSelectedFile }) => {
     setIsCreateFolder(true);
     if (!newFolderName.trim()) {
       toast.error("Folder name cannot be empty!");
+      setIsCreateFolder(false);
       return;
     }
 
@@ -429,7 +397,7 @@ const Documents = ({ setSelectedFile }) => {
             <h3 className="text-lg font-semibold mb-2">Folders</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {folders.map((folder) => (
-                <div key={folder.id} className="relative z-10 bg-blue-50 hover:bg-blue-100 shadow-md hover:scale-105 transition-transform transform rounded-md p-4 flex justify-between items-center">
+                <div key={folder.id} className="relative bg-blue-50 hover:bg-blue-100 shadow-md rounded-md p-4 flex justify-between items-center">
                   <div className="flex items-center"  onClick={() => handleFolderClick(folder.id, folder.name)}>
                     <FolderIcon className="text-blue-400 text-2xl mr-2" />
                     <span className="text-sm font-medium" title={folder.name}>
@@ -438,7 +406,7 @@ const Documents = ({ setSelectedFile }) => {
                     </span>
                   </div>
                   <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" onClick={() => toggleDropdown(folder.id)} />
-                  <FolderOptionsDropdown folderId={folder.id} />
+                  <FolderOptionsDropdown folderId={folder.id} isOpen={dropdownOpen === folder.id} toggleDropdown={toggleDropdown} onRenameSuccess={fetchFilesAndFolders} />
                 </div>
               ))}
             </div>
@@ -450,7 +418,7 @@ const Documents = ({ setSelectedFile }) => {
               {userFiles.map((file) => (
                 <div
                   key={file.id}
-                  className="bg-blue-50 hover:bg-blue-100 shadow-md hover:scale-105 transition-transform transform rounded-md p-4 flex flex-col justify-between items-center"
+                  className="bg-blue-50 hover:bg-blue-100 shadow-md rounded-md p-4 flex flex-col justify-between items-center"
                   onClick={() => handleFileClick(file)}
                 >
                   {/* <div className="w-full h-32 bg-gray-200 flex items-center justify-center overflow-hidden mb-2">
