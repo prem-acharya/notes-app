@@ -5,10 +5,12 @@ import PrivateRoute from './Components/Authentication/PrivateRoute';
 import Login from './Components/Authentication/Login';
 import Signup from './Components/Authentication/SignUp';
 import Dashboard from './Components/Dashboard/Dashboard';
+import LoadingBar from 'react-top-loading-bar';
 
 const App = () => {
   return (
     <AuthProvider>
+      <LoadingBar color="#0066ff" height={4} />
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />

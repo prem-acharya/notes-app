@@ -9,6 +9,7 @@ import { firestore } from "../../../../firebase";
 import { useAuth } from "../../../Authentication/AuthContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import LoadingBar from 'react-top-loading-bar';
 
 const FolderOptionsDropdown = ({
   folderId,
@@ -21,6 +22,7 @@ const FolderOptionsDropdown = ({
   const [isRenameFolder, setIsRenameFolder] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
   const { currentUser } = useAuth();
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -42,8 +44,10 @@ const FolderOptionsDropdown = ({
 
   const handleRenameFolder = async () => {
     setIsRenameFolder(true);
+    setProgress(30); // Start the loading process
     if (!currentUser) {
-      //   console.error("No user logged in");
+      // console.error("No user logged in");
+      setProgress(100); // Complete the loading process if there's an error
       return;
     }
 
@@ -54,9 +58,10 @@ const FolderOptionsDropdown = ({
         name: newFolderName,
         userId: currentUser.uid, // Ensure to update only if the current user owns the folder
       });
-      //   console.log("Folder renamed successfully");
-      toast.success("Folder renamed successfully! 🥳");
+      // console.log("Folder renamed successfully");
+      toast.success("Folder renamed successfully!");
       setShowRenameDialog(false);
+      setProgress(100); // Complete the loading process
       if (onRenameSuccess) {
         onRenameSuccess(); // Call the callback function to refresh the folders list
       }
@@ -67,6 +72,7 @@ const FolderOptionsDropdown = ({
 
   return (
     <>
+      <LoadingBar color="#0066ff" progress={progress} height={4} />
       <div
         ref={dropdownRef}
         className={`absolute z-30 right-0 top-10 mb-2 w-48 bg-white rounded-md shadow-lg ${

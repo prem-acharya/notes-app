@@ -25,6 +25,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { v4 as uuidv4 } from "uuid";
 import FolderOptionsDropdown from './FolderOptionsDropdown';
+import LoadingBar from 'react-top-loading-bar';
 
 const Documents = ({ setSelectedFile }) => {
   const { currentUser } = useAuth(); // Use useAuth to access currentUser
@@ -40,7 +41,7 @@ const Documents = ({ setSelectedFile }) => {
   const [currentFolderId, setCurrentFolderId] = useState(null);
   const [breadcrumbPath, setBreadcrumbPath] = useState([{ name: 'My Notes', id: 'root' }]);
   const [dropdownOpen, setDropdownOpen] = useState(null);
-
+  const [progress, setProgress] = useState(0);
 
   const toggleDropdown = (folderId) => {
     if (dropdownOpen === folderId) {
@@ -189,6 +190,7 @@ const Documents = ({ setSelectedFile }) => {
     uploadTaskRef.current = uploadBytesResumable(storageRef, file);
 
     setIsUploading(true); // Start uploading
+    setProgress(30);
 
     uploadTaskRef.current.on(
       "state_changed",
@@ -200,8 +202,9 @@ const Documents = ({ setSelectedFile }) => {
       },
       (error) => {
         // Handle unsuccessful uploads
-        toast.error("File upload failed! ❌");
+        toast.error("File upload failed!");
         setIsUploading(false);
+        setProgress(100);
       },
       () => {
         // Handle successful uploads on complete
@@ -218,9 +221,10 @@ const Documents = ({ setSelectedFile }) => {
             };
 
             addDoc(collection(firestore, "files"), fileMetadata);
-            toast.success("File uploaded successfully! 📄");
+            toast.success("File uploaded successfully!");
             fetchFilesAndFolders(); // Fetch files and folders again to update the list in real time
             setIsUploading(false); // End uploading
+            setProgress(100);
           }
         );
       }
@@ -317,6 +321,7 @@ const Documents = ({ setSelectedFile }) => {
 
   const createFolder = async () => {
     setIsCreateFolder(true);
+    setProgress(30);
     if (!newFolderName.trim()) {
       toast.error("Folder name cannot be empty!");
       setIsCreateFolder(false);
@@ -347,9 +352,11 @@ const Documents = ({ setSelectedFile }) => {
       fetchFilesAndFolders(); // Fetch files and folders again to update the list in real time
       setShowCreateFolderModal(false); // Close the modal
       setNewFolderName(""); // Reset the folder name
+      setProgress(100);
     } catch (error) {
       toast.error("Failed to create folder!");
       console.error("Error creating folder: ", error);
+      setProgress(100);
     } finally {
       setIsCreateFolder(false);
     }
@@ -358,179 +365,182 @@ const Documents = ({ setSelectedFile }) => {
   document.title = "Notes App - My Documents";
 
   return (
-    <div className="bg-white p-5 rounded-md absolute top-20 left-5 md:left-72 right-5 md:right-5">
-      <div className={`relative`}>
-        <div className="flex md:flex-row justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold mb-4 md:mb-0">My Documents</h2>
-          <div className="flex space-x-4">
-            <label className="cursor-pointer">
-              <input
-                type="file"
-                className="hidden"
-                onChange={handleFileUpload}
-              />
-              <div className="flex items-center space-x-2 bg-blue-100 rounded-md p-2 hover:bg-blue-200 font-medium text-blue-600">
-                <span className="material-icons">
-                  <UploadFileIcon className="text-xl" />
-                </span>
-                <span className="hidden md:inline-block">Upload</span>
-              </div>
-            </label>
-            <button
-              className="flex items-center bg-blue-100 rounded-md p-2 hover:bg-blue-200 space-x-2 font-medium text-blue-600"
-              onClick={openCreateFolderModal}
-            >
-              <span className="material-icons">
-                <CreateNewFolderOutlinedIcon className="text-xl" />
-              </span>
-              <span className="hidden md:inline-block">Folder</span>
-            </button>
-          </div>
-        </div>
-        <Breadcrumb path={breadcrumbPath} onBreadcrumbClick={handleBreadcrumbClick} />
-        <div className="px-2">
-        <hr />
-        </div>
-        {/* Folders Section */}
-        <div className="h-[68vh] overflow-y-scroll overflow-x-hidden ">
-          <div className="mt-4 ml-2 mr-2 cursor-pointer">
-            <h3 className="text-lg font-semibold mb-2">Folders</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {folders.map((folder) => (
-                <div key={folder.id} className="relative bg-blue-50 hover:bg-blue-100 shadow-md rounded-md p-4 flex justify-between items-center">
-                  <div className="flex items-center"  onClick={() => handleFolderClick(folder.id, folder.name)}>
-                    <FolderIcon className="text-blue-400 text-2xl mr-2" />
-                    <span className="text-sm font-medium" title={folder.name}>
-                    {folder.name.slice(0, 15)}
-                    {folder.name.length > 15 ? "..." : ""}
-                    </span>
-                  </div>
-                  <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" onClick={() => toggleDropdown(folder.id)} />
-                  <FolderOptionsDropdown folderId={folder.id} isOpen={dropdownOpen === folder.id} toggleDropdown={toggleDropdown} onRenameSuccess={fetchFilesAndFolders} />
+    <>
+      <LoadingBar color="#0066ff" progress={progress} height={4} />
+      <div className="bg-white p-5 rounded-md absolute top-20 left-5 md:left-72 right-5 md:right-5">
+        <div className={`relative`}>
+          <div className="flex md:flex-row justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold mb-4 md:mb-0">My Documents</h2>
+            <div className="flex space-x-4">
+              <label className="cursor-pointer">
+                <input
+                  type="file"
+                  className="hidden"
+                  onChange={handleFileUpload}
+                />
+                <div className="flex items-center space-x-2 bg-blue-100 rounded-md p-2 hover:bg-blue-200 font-medium text-blue-600">
+                  <span className="material-icons">
+                    <UploadFileIcon className="text-xl" />
+                  </span>
+                  <span className="hidden md:inline-block">Upload</span>
                 </div>
-              ))}
+              </label>
+              <button
+                className="flex items-center bg-blue-100 rounded-md p-2 hover:bg-blue-200 space-x-2 font-medium text-blue-600"
+                onClick={openCreateFolderModal}
+              >
+                <span className="material-icons">
+                  <CreateNewFolderOutlinedIcon className="text-xl" />
+                </span>
+                <span className="hidden md:inline-block">Folder</span>
+              </button>
             </div>
           </div>
-          {/* Files Section */}
-          <div className="mt-4 ml-2 mr-2 cursor-pointer">
-            <h3 className="text-lg font-semibold mb-2">Files</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {userFiles.map((file) => (
-                <div
-                  key={file.id}
-                  className="bg-blue-50 hover:bg-blue-100 shadow-md rounded-md p-4 flex flex-col justify-between items-center"
-                  onClick={() => handleFileClick(file)}
-                >
-                  {/* <div className="w-full h-32 bg-gray-200 flex items-center justify-center overflow-hidden mb-2">
-                    <FilePreview file={file} />
-                  </div> */}
-                  <div className="flex justify-between items-center w-full">
-                    <div className="flex items-center space-x-2">
-                      <div className="text-blue-400">
-                        {getFileIcon(file.name)}
-                      </div>
-                      <span
-                        className="text-sm font-medium truncate"
-                        title={file.name}
-                      >
-                        {file.name.slice(0, 15)}
-                        {file.name.length > 15 ? "..." : ""}
+          <Breadcrumb path={breadcrumbPath} onBreadcrumbClick={handleBreadcrumbClick} />
+          <div className="px-2">
+          <hr />
+          </div>
+          {/* Folders Section */}
+          <div className="h-[68vh] overflow-y-scroll overflow-x-hidden ">
+            <div className="mt-4 ml-2 mr-2 cursor-pointer">
+              <h3 className="text-lg font-semibold mb-2">Folders</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {folders.map((folder) => (
+                  <div key={folder.id} className="relative bg-blue-50 hover:bg-blue-100 shadow-md rounded-md p-4 flex justify-between items-center">
+                    <div className="flex items-center"  onClick={() => handleFolderClick(folder.id, folder.name)}>
+                      <FolderIcon className="text-blue-400 text-2xl mr-2" />
+                      <span className="text-sm font-medium" title={folder.name}>
+                      {folder.name.slice(0, 15)}
+                      {folder.name.length > 15 ? "..." : ""}
                       </span>
                     </div>
-                    <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
+                    <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" onClick={() => toggleDropdown(folder.id)} />
+                    <FolderOptionsDropdown folderId={folder.id} isOpen={dropdownOpen === folder.id} toggleDropdown={toggleDropdown} onRenameSuccess={fetchFilesAndFolders} />
                   </div>
+                ))}
+              </div>
+            </div>
+            {/* Files Section */}
+            <div className="mt-4 ml-2 mr-2 cursor-pointer">
+              <h3 className="text-lg font-semibold mb-2">Files</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {userFiles.map((file) => (
+                  <div
+                    key={file.id}
+                    className="bg-blue-50 hover:bg-blue-100 shadow-md rounded-md p-4 flex flex-col justify-between items-center"
+                    onClick={() => handleFileClick(file)}
+                  >
+                    {/* <div className="w-full h-32 bg-gray-200 flex items-center justify-center overflow-hidden mb-2">
+                    <FilePreview file={file} />
+                  </div> */}
+                    <div className="flex justify-between items-center w-full">
+                      <div className="flex items-center space-x-2">
+                        <div className="text-blue-400">
+                          {getFileIcon(file.name)}
+                        </div>
+                        <span
+                          className="text-sm font-medium truncate"
+                          title={file.name}
+                        >
+                          {file.name.slice(0, 15)}
+                          {file.name.length > 15 ? "..." : ""}
+                        </span>
+                      </div>
+                      <MoreVertIcon className="text-gray-600 hover:bg-gray-300 rounded-full" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <ToastContainer />
+        </div>
+        {isUploading && (
+          <div className="fixed bottom-5 z-50 right-5 bg-blue-100 p-6 shadow-lg rounded-md">
+            <div className="flex items-center text-xl justify-between">
+              <span className="ml-4">Uploading...</span>
+              <span className="mr-4">{Math.round(uploadProgress)}%</span>
+              <button
+                onClick={() => setShowCancelDialog(true)}
+                title="Cancel upload"
+              >
+                <ClearIcon />
+              </button>
+            </div>
+            <div className="w-full mt-4 bg-gray-200 rounded-full h-2 dark:bg-gray-700">
+              <div
+                className="bg-blue-600 h-2 rounded-full"
+                style={{ width: `${uploadProgress}%` }}
+              ></div>
+            </div>
+          </div>
+        )}
+        {showCancelDialog && (
+          <div className="fixed inset-0 z-50 bg-gray-50 bg-opacity-50 flex justify-center items-center">
+            <div className="bg-white p-4 rounded-lg shadow-xl">
+              <h3 className="text-lg font-bold mb-4">Cancel Upload?</h3>
+              <p>
+                Your upload is not complete. Would you like to cancel the upload?
+              </p>
+              <div className="flex justify-end mt-4">
+                <button
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
+                  onClick={() => setShowCancelDialog(false)}
+                >
+                  Continue Upload
+                </button>
+                <button
+                  className="font-bold py-2 px-4 rounded border-2 border-blue-500 hover:border-red-500"
+                  onClick={cancelUpload}
+                >
+                  Cancel Upload
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        {showCreateFolderModal && (
+          <div
+            className="fixed inset-0 z-50 bg-gray-50 bg-opacity-50 overflow-y-auto h-full w-full"
+            id="my-modal"
+          >
+            <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+              <div className="mt-3 text-center">
+                <h3 className="text-lg leading-6 font-medium text-gray-700">
+                  New folder
+                </h3>
+                <div className="mt-2 px-7 py-3">
+                  <input
+                    type="text"
+                    className="border rounded-md py-2 px-3 text-grey-darkest w-full"
+                    placeholder="Untitled folder"
+                    value={newFolderName}
+                    onChange={(e) => setNewFolderName(e.target.value)}
+                  />
                 </div>
-              ))}
+                <div className="items-center px-4 py-3">
+                  <button
+                    id="cancel-modal"
+                    className="px-6 py-2 bg-gray-200 hover:bg-gray-300 rounded-md mr-1"
+                    onClick={() => setShowCreateFolderModal(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    id="create-folder"
+                    disabled={isCreateFolder}
+                    className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md ml-1"
+                    onClick={createFolder}
+                  >
+                    {isCreateFolder ? "Creating..." : "Create"}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-        <ToastContainer />
+        )}
       </div>
-      {isUploading && (
-        <div className="fixed bottom-5 z-50 right-5 bg-blue-100 p-6 shadow-lg rounded-md">
-          <div className="flex items-center text-xl justify-between">
-            <span className="ml-4">Uploading...</span>
-            <span className="mr-4">{Math.round(uploadProgress)}%</span>
-            <button
-              onClick={() => setShowCancelDialog(true)}
-              title="Cancel upload"
-            >
-              <ClearIcon />
-            </button>
-          </div>
-          <div className="w-full mt-4 bg-gray-200 rounded-full h-2 dark:bg-gray-700">
-            <div
-              className="bg-blue-600 h-2 rounded-full"
-              style={{ width: `${uploadProgress}%` }}
-            ></div>
-          </div>
-        </div>
-      )}
-      {showCancelDialog && (
-        <div className="fixed inset-0 z-50 bg-gray-50 bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-4 rounded-lg shadow-xl">
-            <h3 className="text-lg font-bold mb-4">Cancel Upload?</h3>
-            <p>
-              Your upload is not complete. Would you like to cancel the upload?
-            </p>
-            <div className="flex justify-end mt-4">
-              <button
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
-                onClick={() => setShowCancelDialog(false)}
-              >
-                Continue Upload
-              </button>
-              <button
-                className="font-bold py-2 px-4 rounded border-2 border-blue-500 hover:border-red-500"
-                onClick={cancelUpload}
-              >
-                Cancel Upload
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      {showCreateFolderModal && (
-        <div
-          className="fixed inset-0 z-50 bg-gray-50 bg-opacity-50 overflow-y-auto h-full w-full"
-          id="my-modal"
-        >
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div className="mt-3 text-center">
-              <h3 className="text-lg leading-6 font-medium text-gray-700">
-                New folder
-              </h3>
-              <div className="mt-2 px-7 py-3">
-                <input
-                  type="text"
-                  className="border rounded-md py-2 px-3 text-grey-darkest w-full"
-                  placeholder="Untitled folder"
-                  value={newFolderName}
-                  onChange={(e) => setNewFolderName(e.target.value)}
-                />
-              </div>
-              <div className="items-center px-4 py-3">
-                <button
-                  id="cancel-modal"
-                  className="px-6 py-2 bg-gray-200 hover:bg-gray-300 rounded-md mr-1"
-                  onClick={() => setShowCreateFolderModal(false)}
-                >
-                  Cancel
-                </button>
-                <button
-                  id="create-folder"
-                  disabled={isCreateFolder}
-                  className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md ml-1"
-                  onClick={createFolder}
-                >
-                  {isCreateFolder ? "Creating..." : "Create"}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+    </>
   );
 };
 
