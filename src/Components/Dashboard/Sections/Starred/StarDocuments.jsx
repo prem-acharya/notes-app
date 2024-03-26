@@ -71,12 +71,26 @@ const Starred = ({ setSelectedFile }) => {
       setFolders(foldersData);
     });
 
-    // Optionally listen to files in a similar way if needed
+    // Listening to files
+    const filesQuery = query(
+      collection(firestore, "files"),
+      where("userId", "==", currentUser.uid),
+      where("parentId", "==", currentFolderId || "root"),
+      where("isStarred", "==", true) // Only fetch starred files
+    );
+
+    const unsubscribeFiles = onSnapshot(filesQuery, (querySnapshot) => {
+      const filesData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setUserFiles(filesData);
+    });
 
     // Return the unsubscribe function to stop listening when the component unmounts
     return () => {
       unsubscribeFolders();
-      // unsubscribeFiles(); // If you set up a listener for files
+      unsubscribeFiles();
     };
   };
 

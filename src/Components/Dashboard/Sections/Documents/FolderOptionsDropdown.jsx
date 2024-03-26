@@ -4,7 +4,7 @@ import ColorLensIcon from "@mui/icons-material/ColorLens";
 import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import { doc, updateDoc, deleteDoc, getDoc } from "firebase/firestore";
+import { doc, updateDoc, deleteDoc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { firestore } from "../../../../firebase";
 import { useAuth } from "../../../Authentication/AuthContext";
 import { toast } from "react-toastify";
@@ -138,15 +138,34 @@ const FolderOptionsDropdown = ({
 
   const handleToggleStar = async () => {
     const folderDocRef = doc(firestore, "folders", folderId);
-    try {
-      const newStarredStatus = !isCurrentlyStarred; // Toggle the status
-      await updateDoc(folderDocRef, {
+    const newStarredStatus = !isCurrentlyStarred; // Toggle the status
+
+    const updateStarStatus = async (id, isFolder = true) => {
+      const ref = doc(firestore, isFolder ? "folders" : "files", id);
+      await updateDoc(ref, {
         isStarred: newStarredStatus,
       });
+    };
+
+    const fetchAndUpdateSubItems = async (parentId) => {
+      // Fetch and update subfolders
+      const subFoldersQuery = query(collection(firestore, "folders"), where("parentId", "==", parentId));
+      const subFoldersSnapshot = await getDocs(subFoldersQuery);
+      subFoldersSnapshot.forEach(async (doc) => {
+        await updateStarStatus(doc.id);
+        await fetchAndUpdateSubItems(doc.id); // Recursively update subfolders
+      });
+
+      // Optionally, fetch and update files in a similar way
+    };
+
+    try {
+      await updateStarStatus(folderId); // Update the main folder
+      await fetchAndUpdateSubItems(folderId); // Update subfolders and files recursively
       toast.success(`Folder ${newStarredStatus ? "starred" : "unstarred"} successfully!`);
       setIsCurrentlyStarred(newStarredStatus);
       if (onRenameSuccess) {
-        onRenameSuccess(); // Use the same callback to refresh the list, or you can create a new one specifically for star updates
+        onRenameSuccess(); // Refresh the list
       }
     } catch (error) {
       console.error("Error toggling folder star status: ", error);
