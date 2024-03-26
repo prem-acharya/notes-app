@@ -1,21 +1,23 @@
 import React, { useEffect, useRef, useState } from "react";
-import DownloadIcon from "@mui/icons-material/Download";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import ColorLensIcon from "@mui/icons-material/ColorLens";
+import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc, deleteDoc, getDoc } from "firebase/firestore";
 import { firestore } from "../../../../firebase";
 import { useAuth } from "../../../Authentication/AuthContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import LoadingBar from 'react-top-loading-bar';
+import LoadingBar from "react-top-loading-bar";
 
 const FolderOptionsDropdown = ({
   folderId,
   isOpen,
   toggleDropdown,
   onRenameSuccess,
+  folderColor,
+  // isCurrentlyStarred,
 }) => {
   const dropdownRef = useRef(null);
   const [showRenameDialog, setShowRenameDialog] = useState(false);
@@ -23,6 +25,21 @@ const FolderOptionsDropdown = ({
   const [newFolderName, setNewFolderName] = useState("");
   const { currentUser } = useAuth();
   const [progress, setProgress] = useState(0);
+  const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false);
+  const [showColorSubsection, setShowColorSubsection] = useState(false);
+  const [isCurrentlyStarred, setIsCurrentlyStarred] = useState(false);
+
+  useEffect(() => {
+    const fetchStarStatus = async () => {
+      const folderDocRef = doc(firestore, "folders", folderId);
+      const folderDoc = await getDoc(folderDocRef);
+      if (folderDoc.exists()) {
+        setIsCurrentlyStarred(folderDoc.data().isStarred || false);
+      }
+    };
+
+    fetchStarStatus();
+  }, [folderId]);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -46,7 +63,6 @@ const FolderOptionsDropdown = ({
     setIsRenameFolder(true);
     setProgress(30); // Start the loading process
     if (!currentUser) {
-      // console.error("No user logged in");
       setProgress(100); // Complete the loading process if there's an error
       return;
     }
@@ -58,7 +74,6 @@ const FolderOptionsDropdown = ({
         name: newFolderName,
         userId: currentUser.uid, // Ensure to update only if the current user owns the folder
       });
-      // console.log("Folder renamed successfully");
       toast.success("Folder renamed successfully!");
       setShowRenameDialog(false);
       setProgress(100); // Complete the loading process
@@ -67,6 +82,75 @@ const FolderOptionsDropdown = ({
       }
     } finally {
       setIsRenameFolder(false);
+    }
+  };
+
+  const promptDeleteFolder = () => {
+    setShowDeleteConfirmDialog(true);
+  };
+
+  const handleDeleteFolder = async () => {
+    setProgress(30);
+    setShowDeleteConfirmDialog(false); // Close the confirmation dialog
+    if (!folderId) return; // Guard clause if folderId is not provided
+    const folderDocRef = doc(firestore, "folders", folderId);
+    try {
+      await deleteDoc(folderDocRef);
+      toast.success("Folder deleted successfully!");
+      if (onRenameSuccess) {
+        setProgress(100);
+        onRenameSuccess();
+      }
+    } catch (error) {
+      console.error("Error deleting folder: ", error);
+      toast.error("Failed to delete folder.");
+      setProgress(100);
+    }
+  };
+
+  const colorOptions = [
+    { name: "Blue", class: "text-blue-400" },
+    { name: "Red", class: "text-red-400" },
+    { name: "Green", class: "text-green-400" },
+    { name: "Pink", class: "text-pink-400" },
+    { name: "Yellow", class: "text-yellow-400" },
+  ];
+
+  const handleColorSelect = async (colorClass) => {
+    const textColorClass = colorClass.replace("bg", "text");
+    const folderDocRef = doc(firestore, "folders", folderId);
+    setProgress(30);
+    try {
+      await updateDoc(folderDocRef, {
+        color: textColorClass,
+      });
+      // toast.success("Folder color updateded!");
+      if (onRenameSuccess) {
+        onRenameSuccess(); // Call the callback function to refresh the folder's color
+        setProgress(100);
+      }
+    } catch (error) {
+      // console.error("Error updating folder color: ", error);
+      // toast.error("Failed to update folder color.");
+      setProgress(100);
+    }
+  };
+
+  const handleToggleStar = async () => {
+    const folderDocRef = doc(firestore, "folders", folderId);
+    try {
+      const newStarredStatus = !isCurrentlyStarred; // Toggle the status
+      await updateDoc(folderDocRef, {
+        isStarred: newStarredStatus,
+      });
+      toast.success(`Folder ${newStarredStatus ? "starred" : "unstarred"} successfully!`);
+      setIsCurrentlyStarred(newStarredStatus);
+      if (onRenameSuccess) {
+        onRenameSuccess(); // Use the same callback to refresh the list, or you can create a new one specifically for star updates
+      }
+    } catch (error) {
+      console.error("Error toggling folder star status: ", error);
+      toast.error("Failed to toggle folder star status.");
     }
   };
 
@@ -80,22 +164,49 @@ const FolderOptionsDropdown = ({
         }`}
       >
         <div className="text-gray-700">
-          <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center">
+          {/* <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center">
             <DownloadIcon className="mr-3" /> Download
-          </div>
+          </div> */}
           <div
             className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center"
             onClick={handleRenameClick}
           >
             <DriveFileRenameOutlineIcon className="mr-3" /> Rename
           </div>
-          <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center">
-            <ColorLensIcon className="mr-3" /> Folder Colors
+          <div className="group px-4 py-2 hover:bg-gray-100 cursor-pointer">
+            <div className="flex items-center">
+              <ColorLensIcon className="mr-3" />
+              <span className="mr-2">Folder Colors</span>
+            </div>
+            <div className="hidden group-hover:flex flex-wrap mt-2">
+              {colorOptions.map((color) => (
+                <button
+                  key={color.name}
+                  className={`h-6 w-6 rounded-full m-1 focus:outline-none ${color.class.replace(
+                    "text",
+                    "bg"
+                  )} ${
+                    folderColor === color.class
+                      ? " border-2 border-black"
+                      : ""
+                  }`} // Add border if selected
+                  onClick={() => handleColorSelect(color.class)}
+                  title={`Change folder color to ${color.name}`}
+                />
+              ))}
+            </div>
           </div>
-          <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center">
-            <StarBorderIcon className="mr-3" /> Add to starred
+          <div
+            className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center"
+            onClick={handleToggleStar}
+          >
+            {isCurrentlyStarred ? <StarIcon className="mr-3" /> : <StarBorderIcon className="mr-3" />}
+            {isCurrentlyStarred ? "Unstar" : "Add to starred"}
           </div>
-          <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center">
+          <div
+            className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center"
+            onClick={promptDeleteFolder}
+          >
             <DeleteForeverIcon className="mr-3" /> Delete
           </div>
         </div>
@@ -132,6 +243,39 @@ const FolderOptionsDropdown = ({
                   disabled={isRenameFolder}
                 >
                   {isRenameFolder ? "Renaming..." : "Rename"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {showDeleteConfirmDialog && (
+        <div
+          className="fixed inset-0 z-50 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full"
+          id="delete-confirm-modal"
+        >
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div className="mt-3 text-center">
+              <h3 className="text-lg leading-6 font-medium text-gray-700">
+                Confirm Delete
+              </h3>
+              <div className="mt-2 px-7 py-3">
+                <p className="text-sm text-gray-500">
+                  Are you sure you want to delete this folder?
+                </p>
+              </div>
+              <div className="items-center px-4 py-3">
+                <button
+                  className="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded-md mr-2"
+                  onClick={() => setShowDeleteConfirmDialog(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="px-4 py-2 bg-blue-500 hover:bg-red-500 text-white rounded-md"
+                  onClick={handleDeleteFolder}
+                >
+                  Delete
                 </button>
               </div>
             </div>

@@ -1,6 +1,4 @@
 import React, { useEffect, useState, useRef } from "react";
-import UploadFileIcon from "@mui/icons-material/UploadFile";
-import CreateNewFolderOutlinedIcon from "@mui/icons-material/CreateNewFolderOutlined";
 import FolderIcon from "@mui/icons-material/Folder";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -19,16 +17,16 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { storage, firestore } from "../../../../firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
+import { collection, addDoc, query, where, getDocs, doc, onSnapshot } from "firebase/firestore";
 import { useAuth } from "../../../Authentication/AuthContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { v4 as uuidv4 } from "uuid";
-import FolderOptionsDropdown from "./FolderOptionsDropdown";
-import FileOptionsDropdown from "./FileOptionsDropdown";
+import FolderOptionsDropdown from "../Documents/FolderOptionsDropdown";
+import FileOptionsDropdown from "../Documents/FileOptionsDropdown";
 import LoadingBar from "react-top-loading-bar";
 
-const Documents = ({ setSelectedFile }) => {
+const Starred = ({ setSelectedFile }) => {
   const { currentUser } = useAuth(); // Use useAuth to access currentUser
   const [userFiles, setUserFiles] = useState([]);
   const [folders, setFolders] = useState([]);
@@ -54,37 +52,38 @@ const Documents = ({ setSelectedFile }) => {
     }
   };
 
-  const fetchFilesAndFolders = async () => {
+  const fetchFilesAndFolders = () => {
     if (!currentUser) return;
 
-    const q = query(
-      collection(firestore, "files"),
-      where("userId", "==", currentUser.uid),
-      where("folderId", "==", currentFolderId || "root")
-    );
-    const querySnapshot = await getDocs(q);
-    const files = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    setUserFiles(files);
-
+    // Listening to folders
     const foldersQuery = query(
       collection(firestore, "folders"),
       where("userId", "==", currentUser.uid),
-      where("parentId", "==", currentFolderId || "root")
+      where("parentId", "==", currentFolderId || "root"),
+      where("isStarred", "==", true) // Only fetch starred folders
     );
-    const foldersSnapshot = await getDocs(foldersQuery);
-    const foldersData = foldersSnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    setFolders(foldersData);
+
+    const unsubscribeFolders = onSnapshot(foldersQuery, (querySnapshot) => {
+      const foldersData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setFolders(foldersData);
+    });
+
+    // Optionally listen to files in a similar way if needed
+
+    // Return the unsubscribe function to stop listening when the component unmounts
+    return () => {
+      unsubscribeFolders();
+      // unsubscribeFiles(); // If you set up a listener for files
+    };
   };
 
   useEffect(() => {
-    fetchFilesAndFolders();
-  }, [currentUser, currentFolderId]);
+    const unsubscribe = fetchFilesAndFolders();
+    return () => unsubscribe(); // Cleanup subscription on unmount
+  }, [currentUser, currentFolderId]); // Re-run when currentUser or currentFolderId changes
 
   const handleFolderClick = async (folderId, folderName) => {
     setCurrentFolderId(folderId);
@@ -202,84 +201,6 @@ const Documents = ({ setSelectedFile }) => {
     );
   };
 
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const fileId = uuidv4();
-    const filePath = currentFolderId
-      ? `files/${currentUser.uid}/${currentFolderId}/${fileId}-${file.name}`
-      : `files/${currentUser.uid}/${fileId}-${file.name}`;
-    const storageRef = ref(storage, filePath);
-    uploadTaskRef.current = uploadBytesResumable(storageRef, file);
-
-    setIsUploading(true); // Start uploading
-    setProgress(30);
-
-    uploadTaskRef.current.on(
-      "state_changed",
-      (snapshot) => {
-        // Get upload progress
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setUploadProgress(progress);
-      },
-      (error) => {
-        // Handle unsuccessful uploads
-        toast.error("File upload failed!");
-        setIsUploading(false);
-        setProgress(100);
-      },
-      () => {
-        // Handle successful uploads on complete
-        getDownloadURL(uploadTaskRef.current.snapshot.ref).then(
-          (downloadURL) => {
-            const fileMetadata = {
-              name: file.name,
-              size: file.size,
-              uid: fileId,
-              uploadDate: new Date().toISOString(),
-              userId: currentUser.uid,
-              previewUrl: downloadURL, // Include the preview URL in the file metadata
-              folderId: currentFolderId || "root", // Include the current folder ID
-            };
-
-            addDoc(collection(firestore, "files"), fileMetadata);
-            toast.success("File uploaded successfully!");
-            fetchFilesAndFolders(); // Fetch files and folders again to update the list in real time
-            setIsUploading(false); // End uploading
-            setProgress(100);
-          }
-        );
-      }
-    );
-  };
-
-  //   const FilePreview = ({ file }) => {
-  //   const [hasError, setHasError] = useState(false);
-
-  //   const renderFileIcon = () => (
-  //     <div className="flex justify-center items-center w-full h-32 bg-gray-200">
-  //       <div className="opacity-50 text-blue-500 text-6xl">
-  //         {getFileIcon(file.name)}
-  //       </div>
-  //     </div>
-  //   );
-
-  //   if (hasError || !file.previewUrl) {
-  //     return renderFileIcon();
-  //   }
-
-  //   return (
-  //     <img
-  //       src={file.previewUrl}
-  //       alt={`Preview of ${file.name}`}
-  //       className="w-full h-32 object-cover"
-  //       onError={() => setHasError(true)}
-  //     />
-  //   );
-  // };
-
   const cancelUpload = () => {
     if (uploadTaskRef.current) {
       uploadTaskRef.current.cancel(); // Use the ref to access the current upload task
@@ -339,58 +260,6 @@ const Documents = ({ setSelectedFile }) => {
     }
   };
 
-  const openCreateFolderModal = () => {
-    setShowCreateFolderModal(true);
-  };
-
-  const createFolder = async () => {
-    setIsCreateFolder(true);
-    setProgress(30);
-    if (!newFolderName.trim()) {
-      toast.error("Folder name cannot be empty!");
-      setIsCreateFolder(false);
-      return;
-    }
-
-    const folderId = uuidv4();
-    const folderPath = currentFolderId
-      ? `folders/${currentUser.uid}/${currentFolderId}/${folderId}`
-      : `folders/${currentUser.uid}/${folderId}`;
-    const folderRef = ref(storage, folderPath);
-    const folderData = {
-      name: newFolderName,
-      userId: currentUser.uid,
-      folderId: folderId,
-      parentId: currentFolderId || "root",
-      creationDate: new Date().toISOString(),
-    };
-
-    try {
-      // Create a folder document in Firestore
-      await addDoc(collection(firestore, "folders"), folderData);
-
-      // Create a placeholder file in Google Storage to represent the folder
-      await uploadBytesResumable(
-        folderRef,
-        new Blob(["This is a placeholder for the folder structure."], {
-          type: "text/plain",
-        })
-      );
-
-      toast.success("Folder created successfully!");
-      fetchFilesAndFolders(); // Fetch files and folders again to update the list in real time
-      setShowCreateFolderModal(false); // Close the modal
-      setNewFolderName(""); // Reset the folder name
-      setProgress(100);
-    } catch (error) {
-      toast.error("Failed to create folder!");
-      console.error("Error creating folder: ", error);
-      setProgress(100);
-    } finally {
-      setIsCreateFolder(false);
-    }
-  };
-
   const handleColorChange = (folderId, colorClass) => {
     setFolders((prevFolders) =>
       prevFolders.map((folder) =>
@@ -407,31 +276,7 @@ const Documents = ({ setSelectedFile }) => {
       <div className="bg-white p-5 rounded-md absolute top-20 left-5 md:left-72 right-5 md:right-5">
         <div className={`relative`}>
           <div className="flex md:flex-row justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold mb-4 md:mb-0">My Documents</h2>
-            <div className="flex space-x-4">
-              <label className="cursor-pointer">
-                <input
-                  type="file"
-                  className="hidden"
-                  onChange={handleFileUpload}
-                />
-                <div className="flex items-center space-x-2 bg-blue-100 rounded-md p-2 hover:bg-blue-200 font-medium text-blue-600">
-                  <span className="material-icons">
-                    <UploadFileIcon className="text-xl" />
-                  </span>
-                  <span className="hidden md:inline-block">Upload</span>
-                </div>
-              </label>
-              <button
-                className="flex items-center bg-blue-100 rounded-md p-2 hover:bg-blue-200 space-x-2 font-medium text-blue-600"
-                onClick={openCreateFolderModal}
-              >
-                <span className="material-icons">
-                  <CreateNewFolderOutlinedIcon className="text-xl" />
-                </span>
-                <span className="hidden md:inline-block">Folder</span>
-              </button>
-            </div>
+            <h2 className="text-xl font-semibold mb-4 md:mb-0">Starred Documents</h2>
           </div>
           <Breadcrumb
             path={breadcrumbPath}
@@ -491,9 +336,6 @@ const Documents = ({ setSelectedFile }) => {
                     key={file.id}
                     className="relative bg-blue-50 hover:bg-blue-100 shadow-md rounded-md p-4 flex flex-col justify-between items-center"
                   >
-                    {/* <div className="w-full h-32 bg-gray-200 flex items-center justify-center overflow-hidden mb-2">
-                    <FilePreview file={file} />
-                  </div> */}
                     <div className="flex justify-between items-center w-full">
                       <div
                         className="flex items-center space-x-2"
@@ -618,4 +460,4 @@ const Documents = ({ setSelectedFile }) => {
   );
 };
 
-export default Documents;
+export default Starred;

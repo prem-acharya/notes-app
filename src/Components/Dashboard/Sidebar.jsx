@@ -1,15 +1,21 @@
 import React, { useState } from "react";
 import DescriptionIcon from "@mui/icons-material/Description";
-import CameraAltIcon from '@mui/icons-material/CameraAlt';
+import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import StorageIcon from "@mui/icons-material/Storage";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import DocumentScannerIcon from "@mui/icons-material/DocumentScanner";
 import Documents from "./Sections/Documents/Documents";
-import LoadingBar from 'react-top-loading-bar'; // Import LoadingBar
+import LoadingBar from "react-top-loading-bar";
+import Starred from "./Sections/Starred/StarDocuments";
 
-const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, selectedOption, setSelectedOption }) => {
+const Sidebar = ({
+  isSidebarOpen,
+  setIsSidebarOpen,
+  selectedOption,
+  setSelectedOption,
+}) => {
   const [progress, setProgress] = useState(0); // State for loading bar progress
 
   const handleOptionClick = (option) => {
@@ -34,7 +40,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, selectedOption, setSelectedO
           <div className="flex flex-col">
             <div
               className={`flex items-center py-2 text-gray-700 hover:bg-gray-200 rounded-md ${
-                selectedOption === "documents" ? "bg-gray-200" : ""
+                selectedOption === "documents" ? "bg-blue-200" : ""
               }`}
               onClick={() => handleOptionClick("documents")}
             >
@@ -42,7 +48,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, selectedOption, setSelectedO
             </div>
             <div
               className={`flex items-center py-2 text-gray-700 hover:bg-gray-200 rounded-md ${
-                selectedOption === "scanner" ? "bg-gray-200" : ""
+                selectedOption === "camera" ? "bg-blue-200" : ""
               }`}
               onClick={() => handleOptionClick("camera")}
             >
@@ -50,7 +56,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, selectedOption, setSelectedO
             </div>
             <div
               className={`flex items-center py-2 text-gray-700 hover:bg-gray-200 rounded-md ${
-                selectedOption === "shared" ? "bg-gray-200" : ""
+                selectedOption === "scandocuments" ? "bg-blue-200" : ""
               }`}
               onClick={() => handleOptionClick("scandocuments")}
             >
@@ -58,7 +64,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, selectedOption, setSelectedO
             </div>
             <div
               className={`flex items-center py-2 text-gray-700 hover:bg-gray-200 rounded-md ${
-                selectedOption === "starred" ? "bg-gray-200" : ""
+                selectedOption === "starred" ? "bg-blue-200" : ""
               }`}
               onClick={() => handleOptionClick("starred")}
             >
@@ -66,7 +72,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, selectedOption, setSelectedO
             </div>
             <div
               className={`flex items-center py-2 text-gray-700 hover:bg-gray-200 rounded-md ${
-                selectedOption === "recent" ? "bg-gray-200" : ""
+                selectedOption === "recent" ? "bg-blue-200" : ""
               }`}
               onClick={() => handleOptionClick("recent")}
             >
@@ -74,7 +80,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, selectedOption, setSelectedO
             </div>
             <div
               className={`flex items-center py-2 text-gray-700 hover:bg-gray-200 rounded-md ${
-                selectedOption === "trash" ? "bg-gray-200" : ""
+                selectedOption === "trash" ? "bg-blue-200" : ""
               }`}
               onClick={() => handleOptionClick("trash")}
             >
@@ -82,7 +88,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, selectedOption, setSelectedO
             </div>
             <div
               className={`flex items-center py-2 text-gray-700 hover:bg-gray-200 rounded-md ${
-                selectedOption === "storage" ? "bg-gray-200" : ""
+                selectedOption === "storage" ? "bg-blue-200" : ""
               }`}
               onClick={() => handleOptionClick("storage")}
             >
@@ -96,16 +102,13 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, selectedOption, setSelectedO
           <div className="flex-grow p-5">
             {/* Render the specific content for the selected option */}
             {selectedOption === "documents" && (
-              <div className="bg-white p-5 rounded-md"><Documents /></div>
+              <div className="bg-white p-5 rounded-md">
+                <Documents />
+              </div>
             )}
             {selectedOption === "camera" && (
               <div className="bg-white p-5 rounded-md">
                 <h2>Camera</h2>
-              </div>
-            )}
-            {selectedOption === "recent" && (
-              <div className="bg-white p-5 rounded-md">
-                <h2>Recent Content</h2>
               </div>
             )}
             {selectedOption === "scandocuments" && (
@@ -113,9 +116,14 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, selectedOption, setSelectedO
                 <h2>Scan Documents</h2>
               </div>
             )}
+            {selectedOption === "recent" && (
+              <div className="bg-white p-5 rounded-md">
+                <h2>Recent Content</h2>
+              </div>
+            )}
             {selectedOption === "starred" && (
               <div className="bg-white p-5 rounded-md">
-                <h2>Starred Content</h2>
+                <Starred />
               </div>
             )}
             {selectedOption === "trash" && (
