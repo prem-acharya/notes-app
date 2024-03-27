@@ -45,6 +45,8 @@ const Documents = ({ setSelectedFile }) => {
   ]);
   const [dropdownOpen, setDropdownOpen] = useState(null);
   const [progress, setProgress] = useState(0);
+  const [sortedFolders, setSortedFolders] = useState([]);
+  const [sortedFiles, setSortedFiles] = useState([]);
 
   const toggleDropdown = (folderId) => {
     if (dropdownOpen === folderId) {
@@ -53,6 +55,20 @@ const Documents = ({ setSelectedFile }) => {
       setDropdownOpen(folderId);
     }
   };
+
+  useEffect(() => {
+    // Sort folders by name in ascending order
+    const sortedFolders = [...folders].sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
+    setSortedFolders(sortedFolders);
+
+    // Sort files by name in ascending order
+    const sortedFiles = [...userFiles].sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
+    setSortedFiles(sortedFiles);
+  }, [folders, userFiles]); // This will re-sort when folders or userFiles change
 
   const fetchFilesAndFolders = async () => {
     if (!currentUser) return;
@@ -445,7 +461,7 @@ const Documents = ({ setSelectedFile }) => {
             <div className="mt-4 ml-2 mr-2 cursor-pointer">
               <h3 className="text-lg font-semibold mb-2">Folders</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {folders.map((folder) => (
+                {sortedFolders.map((folder) => (
                   <div
                     key={folder.id}
                     className="relative bg-blue-50 hover:bg-blue-100 shadow-md rounded-md p-4 flex justify-between items-center"
@@ -486,7 +502,7 @@ const Documents = ({ setSelectedFile }) => {
             <div className="mt-4 ml-2 mr-2 cursor-pointer">
               <h3 className="text-lg font-semibold mb-2">Files</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {userFiles.map((file) => (
+                {sortedFiles.map((file) => (
                   <div
                     key={file.id}
                     className="relative bg-blue-50 hover:bg-blue-100 shadow-md rounded-md p-4 flex flex-col justify-between items-center"

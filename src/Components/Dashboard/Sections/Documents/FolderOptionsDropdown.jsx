@@ -1,10 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import ColorLensIcon from "@mui/icons-material/ColorLens";
-import StarIcon from '@mui/icons-material/Star';
+import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import { doc, updateDoc, deleteDoc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
+import {
+  doc,
+  updateDoc,
+  deleteDoc,
+  getDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
 import { firestore } from "../../../../firebase";
 import { useAuth } from "../../../Authentication/AuthContext";
 import { toast } from "react-toastify";
@@ -110,8 +119,8 @@ const FolderOptionsDropdown = ({
 
   const colorOptions = [
     { name: "Blue", class: "text-blue-400" },
-    { name: "Red", class: "text-red-400" },
-    { name: "Green", class: "text-green-400" },
+    { name: "Red", class: "text-red-500" },
+    { name: "Green", class: "text-green-500" },
     { name: "Pink", class: "text-pink-400" },
     { name: "Yellow", class: "text-yellow-400" },
   ];
@@ -149,7 +158,10 @@ const FolderOptionsDropdown = ({
 
     const fetchAndUpdateSubItems = async (parentId) => {
       // Fetch and update subfolders
-      const subFoldersQuery = query(collection(firestore, "folders"), where("parentId", "==", parentId));
+      const subFoldersQuery = query(
+        collection(firestore, "folders"),
+        where("parentId", "==", parentId)
+      );
       const subFoldersSnapshot = await getDocs(subFoldersQuery);
       subFoldersSnapshot.forEach(async (doc) => {
         await updateStarStatus(doc.id);
@@ -162,7 +174,9 @@ const FolderOptionsDropdown = ({
     try {
       await updateStarStatus(folderId); // Update the main folder
       await fetchAndUpdateSubItems(folderId); // Update subfolders and files recursively
-      toast.success(`Folder ${newStarredStatus ? "starred" : "unstarred"} successfully!`);
+      toast.success(
+        `Folder ${newStarredStatus ? "starred" : "unstarred"} successfully!`
+      );
       setIsCurrentlyStarred(newStarredStatus);
       if (onRenameSuccess) {
         onRenameSuccess(); // Refresh the list
@@ -205,12 +219,11 @@ const FolderOptionsDropdown = ({
                     "text",
                     "bg"
                   )} ${
-                    folderColor === color.class
-                      ? " border-2 border-black"
-                      : ""
+                    folderColor === color.class ? " border-2 border-black" : ""
                   }`} // Add border if selected
                   onClick={() => handleColorSelect(color.class)}
                   title={`Change folder color to ${color.name}`}
+                  style={{ backgroundColor: color.name }}
                 />
               ))}
             </div>
@@ -219,7 +232,11 @@ const FolderOptionsDropdown = ({
             className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center"
             onClick={handleToggleStar}
           >
-            {isCurrentlyStarred ? <StarIcon className="mr-3" /> : <StarBorderIcon className="mr-3" />}
+            {isCurrentlyStarred ? (
+              <StarIcon className="mr-3" />
+            ) : (
+              <StarBorderIcon className="mr-3" />
+            )}
             {isCurrentlyStarred ? "Unstar" : "Add to starred"}
           </div>
           <div
