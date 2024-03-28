@@ -17,7 +17,7 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { storage, firestore } from "../../../../firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { collection, addDoc, query, where, getDocs, doc, onSnapshot } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, onSnapshot } from "firebase/firestore";
 import { useAuth } from "../../../Authentication/AuthContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -27,20 +27,18 @@ import FileOptionsDropdown from "../Documents/FileOptionsDropdown";
 import LoadingBar from "react-top-loading-bar";
 
 const Starred = ({ setSelectedFile }) => {
-  const { currentUser } = useAuth(); // Use useAuth to access currentUser
+  const { currentUser } = useAuth();
   const [userFiles, setUserFiles] = useState([]);
   const [folders, setFolders] = useState([]);
-  const uploadTaskRef = useRef(null); // Use useRef to persist the upload task reference
+  const uploadTaskRef = useRef(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [showCreateFolderModal, setShowCreateFolderModal] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
   const [isCreateFolder, setIsCreateFolder] = useState(false);
-  const [currentFolderId, setCurrentFolderId] = useState(null);
-  const [breadcrumbPath, setBreadcrumbPath] = useState([
-    { name: "My Notes", id: "root" },
-  ]);
+  const [currentFolderId, setCurrentFolderId] = useState("root");
+  const [breadcrumbPath, setBreadcrumbPath] = useState([{ name: "Star Notes", id: "root" }]);
   const [dropdownOpen, setDropdownOpen] = useState(null);
   const [progress, setProgress] = useState(0);
 
@@ -52,70 +50,59 @@ const Starred = ({ setSelectedFile }) => {
     }
   };
 
-  const fetchFilesAndFolders = () => {
+  const fetchFilesAndFolders = async (folderId = "root") => {
     if (!currentUser) return;
 
-    // Listening to folders
+    setFolders([]); // Reset folders state before fetching new data
+    setUserFiles([]); // Reset files state before fetching new data
+
+    // Fetch starred folders at the current level
     const foldersQuery = query(
       collection(firestore, "folders"),
       where("userId", "==", currentUser.uid),
-      where("parentId", "==", currentFolderId || "root"),
-      where("isStarred", "==", true) // Only fetch starred folders
+      where("parentId", "==", folderId),
+      where("isStarred", "==", true)
     );
+    const foldersSnapshot = await getDocs(foldersQuery);
+    const foldersData = foldersSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
 
-    const unsubscribeFolders = onSnapshot(foldersQuery, (querySnapshot) => {
-      const foldersData = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setFolders(foldersData);
-    });
-
-    // Listening to files
+    // Fetch starred files at the current level
     const filesQuery = query(
       collection(firestore, "files"),
       where("userId", "==", currentUser.uid),
-      where("parentId", "==", currentFolderId || "root"),
-      where("isStarred", "==", true) // Only fetch starred files
+      where("folderId", "==", folderId),
+      where("isStarred", "==", true)
     );
+    const filesSnapshot = await getDocs(filesQuery);
+    const filesData = filesSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
 
-    const unsubscribeFiles = onSnapshot(filesQuery, (querySnapshot) => {
-      const filesData = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setUserFiles(filesData);
-    });
-
-    // Return the unsubscribe function to stop listening when the component unmounts
-    return () => {
-      unsubscribeFolders();
-      unsubscribeFiles();
-    };
+    // Update state with fetched folders and files
+    setFolders(foldersData);
+    setUserFiles(filesData);
   };
 
   useEffect(() => {
-    const unsubscribe = fetchFilesAndFolders();
-    return () => unsubscribe(); // Cleanup subscription on unmount
-  }, [currentUser, currentFolderId]); // Re-run when currentUser or currentFolderId changes
+    fetchFilesAndFolders(currentFolderId);
+  }, [currentUser, currentFolderId]);
 
-  const handleFolderClick = async (folderId, folderName) => {
+  const handleFolderClick = (folderId, folderName) => {
     setCurrentFolderId(folderId);
-    // Add the new folder to the breadcrumb path
-    setBreadcrumbPath((prevPath) => [
-      ...prevPath,
-      { name: folderName, id: folderId },
-    ]);
-    // Fetch the contents of the clicked folder
-    await fetchFilesAndFolders();
+    // Update breadcrumbPath to include the new folder
+    setBreadcrumbPath(prevPath => [...prevPath, { id: folderId, name: folderName }]);
+    fetchFilesAndFolders(folderId);
   };
 
-  const handleBreadcrumbClick = async (folderId, index) => {
+  const handleBreadcrumbClick = (folderId, index) => {
     setCurrentFolderId(folderId);
-    // Trim the breadcrumb path to the selected index
-    setBreadcrumbPath((prevPath) => prevPath.slice(0, index + 1));
-    // Fetch the contents of the clicked folder
-    await fetchFilesAndFolders();
+    // Trim the breadcrumbPath to the selected index
+    setBreadcrumbPath(prevPath => prevPath.slice(0, index + 1));
+    fetchFilesAndFolders(folderId);
   };
 
   const Breadcrumb = ({ path, onBreadcrumbClick }) => {
@@ -228,30 +215,30 @@ const Starred = ({ setSelectedFile }) => {
     setSelectedFile(file);
   };
 
-  const getFileIcon = (fileName) => {
+  const getFileIcon = (fileName, colorClass = "") => {
     const extension = fileName.split(".").pop().toLowerCase();
 
     switch (extension) {
       case "pdf":
-        return <PictureAsPdfIcon />;
+        return <PictureAsPdfIcon className={colorClass} />;
       case "png":
       case "jpg":
       case "jpeg":
-        return <ImageIcon />;
+        return <ImageIcon className={colorClass} />;
       case "mp4":
-        return <MovieIcon />;
+        return <MovieIcon className={colorClass} />;
       case "mp3":
-        return <MusicVideoIcon />;
+        return <MusicVideoIcon className={colorClass} />;
       case "docx":
-        return <DescriptionIcon />;
+        return <DescriptionIcon className={colorClass} />;
       case "pptx":
-        return <SlideshowIcon />;
+        return <SlideshowIcon className={colorClass} />;
       case "xlsx":
-        return <TableChartIcon />;
+        return <TableChartIcon className={colorClass} />;
       case "gif":
-        return <GifBoxIcon />;
+        return <GifBoxIcon className={colorClass} />;
       case "zip":
-        return <FolderZipIcon />;
+        return <FolderZipIcon className={colorClass} />;
       case "py":
       case "c":
       case "html":
@@ -268,9 +255,9 @@ const Starred = ({ setSelectedFile }) => {
       case "yaml":
       case "cc":
       case "php":
-        return <TerminalIcon />;
+        return <TerminalIcon className={colorClass} />;
       default:
-        return <InsertDriveFileIcon />;
+        return <InsertDriveFileIcon className={colorClass} />;
     }
   };
 
@@ -278,6 +265,11 @@ const Starred = ({ setSelectedFile }) => {
     setFolders((prevFolders) =>
       prevFolders.map((folder) =>
         folder.id === folderId ? { ...folder, color: colorClass } : folder
+      )
+    );
+    setUserFiles((prevFiles) =>
+      prevFiles.map((file) =>
+        file.id === folderId ? { ...file, color: colorClass } : file
       )
     );
   };
@@ -300,86 +292,92 @@ const Starred = ({ setSelectedFile }) => {
             <hr />
           </div>
           {/* Folders Section */}
-          <div className="h-[68vh] overflow-y-scroll overflow-x-hidden ">
-            <div className="mt-4 ml-2 mr-2 cursor-pointer">
-              <h3 className="text-lg font-semibold mb-2">Folders</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {folders.map((folder) => (
+          <div className="mt-4 ml-2 mr-2 cursor-pointer">
+            <h3 className="text-lg font-semibold mb-2">Folders</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {folders.map((folder) => (
+                <div
+                  key={folder.id}
+                  className="relative bg-blue-50 hover:bg-blue-100 shadow-md rounded-md p-4 flex justify-between items-center"
+                  onClick={() => handleFolderClick(folder.id, folder.name)}
+                >
                   <div
-                    key={folder.id}
-                    className="relative bg-blue-50 hover:bg-blue-100 shadow-md rounded-md p-4 flex justify-between items-center"
+                    className="flex items-center"
                   >
+                    <FolderIcon
+                      className={`${folder.color || "text-blue-400"} text-2xl mr-2`}
+                    />
+                    <span className="text-sm font-medium" title={folder.name}>
+                      {folder.name.slice(0, 15)}
+                      {folder.name.length > 15 ? "..." : ""}
+                    </span>
+                  </div>
+                  <MoreVertIcon
+                    className="text-gray-600 hover:bg-gray-300 rounded-full"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleDropdown(folder.id);
+                    }}
+                  />
+                  <FolderOptionsDropdown
+                    folderId={folder.id}
+                    isOpen={dropdownOpen === folder.id}
+                    toggleDropdown={toggleDropdown}
+                    onRenameSuccess={() => fetchFilesAndFolders(currentFolderId)}
+                    folderColor={folder.color} // Pass the current color
+                    onColorChange={(colorClass) =>
+                      handleColorChange(folder.id, colorClass)
+                    }
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Files Section */}
+          <div className="mt-4 ml-2 mr-2 cursor-pointer">
+            <h3 className="text-lg font-semibold mb-2">Files</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {userFiles.map((file) => (
+                <div
+                  key={file.id}
+                  className="relative bg-blue-50 hover:bg-blue-100 shadow-md rounded-md p-4 flex flex-col justify-between items-center"
+                  onClick={() => handleFileClick(file)}
+                >
+                  <div className="flex justify-between items-center w-full">
                     <div
-                      className="flex items-center"
-                      onClick={() => handleFolderClick(folder.id, folder.name)}
+                      className="flex items-center space-x-2"
                     >
-                      <FolderIcon
-                        className={`${
-                          folder.color || "text-blue-400"
-                        } text-2xl mr-2`}
-                      />
-                      <span className="text-sm font-medium" title={folder.name}>
-                        {folder.name.slice(0, 15)}
-                        {folder.name.length > 15 ? "..." : ""}
+                      <div className="text-blue-400">
+                        {getFileIcon(file.name, file.color || "text-blue-400")}
+                      </div>
+                      <span
+                        className="text-sm font-medium truncate"
+                        title={file.name}
+                      >
+                        {file.name.slice(0, 15)}
+                        {file.name.length > 15 ? "..." : ""}
                       </span>
                     </div>
                     <MoreVertIcon
                       className="text-gray-600 hover:bg-gray-300 rounded-full"
-                      onClick={() => toggleDropdown(folder.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleDropdown(file.id);
+                      }}
                     />
-                    <FolderOptionsDropdown
-                      folderId={folder.id}
-                      isOpen={dropdownOpen === folder.id}
+                    <FileOptionsDropdown
+                      file={file}
+                      isOpen={dropdownOpen === file.id}
                       toggleDropdown={toggleDropdown}
-                      onRenameSuccess={fetchFilesAndFolders}
-                      folderColor={folder.color} // Pass the current color
-                      onColorChange={(colorClass) =>
-                        handleColorChange(folder.id, colorClass)
-                      }
+                      onRenameSuccess={() => fetchFilesAndFolders(currentFolderId)}
+                      fileColor={file.color}
+                        onColorChange={(colorClass) =>
+                          handleColorChange(file.id, colorClass)
+                        }
                     />
                   </div>
-                ))}
-              </div>
-            </div>
-            {/* Files Section */}
-            <div className="mt-4 ml-2 mr-2 cursor-pointer">
-              <h3 className="text-lg font-semibold mb-2">Files</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {userFiles.map((file) => (
-                  <div
-                    key={file.id}
-                    className="relative bg-blue-50 hover:bg-blue-100 shadow-md rounded-md p-4 flex flex-col justify-between items-center"
-                  >
-                    <div className="flex justify-between items-center w-full">
-                      <div
-                        className="flex items-center space-x-2"
-                        onClick={() => handleFileClick(file)}
-                      >
-                        <div className="text-blue-400">
-                          {getFileIcon(file.name)}
-                        </div>
-                        <span
-                          className="text-sm font-medium truncate"
-                          title={file.name}
-                        >
-                          {file.name.slice(0, 15)}
-                          {file.name.length > 15 ? "..." : ""}
-                        </span>
-                      </div>
-                      <MoreVertIcon
-                        className="text-gray-600 hover:bg-gray-300 rounded-full"
-                        onClick={() => toggleDropdown(file.id)}
-                      />
-                      <FileOptionsDropdown
-                        file={file}
-                        isOpen={dropdownOpen === file.id}
-                        toggleDropdown={toggleDropdown}
-                        onRenameSuccess={fetchFilesAndFolders}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           </div>
           <ToastContainer />

@@ -66,6 +66,7 @@ const FolderOptionsDropdown = ({
 
   const handleRenameClick = () => {
     setShowRenameDialog(true);
+    setProgress(30);
   };
 
   const handleRenameFolder = async () => {
@@ -83,7 +84,7 @@ const FolderOptionsDropdown = ({
         name: newFolderName,
         userId: currentUser.uid, // Ensure to update only if the current user owns the folder
       });
-      toast.success("Folder renamed successfully!");
+      toast.success("Folder Renamed successfully!");
       setShowRenameDialog(false);
       setProgress(100); // Complete the loading process
       if (onRenameSuccess) {
@@ -91,10 +92,12 @@ const FolderOptionsDropdown = ({
       }
     } finally {
       setIsRenameFolder(false);
+      setProgress(100);
     }
   };
 
   const promptDeleteFolder = () => {
+    setProgress(30);
     setShowDeleteConfirmDialog(true);
   };
 
@@ -146,44 +149,34 @@ const FolderOptionsDropdown = ({
   };
 
   const handleToggleStar = async () => {
-    const folderDocRef = doc(firestore, "folders", folderId);
-    const newStarredStatus = !isCurrentlyStarred; // Toggle the status
-
+    const newStarredStatus = !isCurrentlyStarred;
+    setIsCurrentlyStarred(newStarredStatus);
+  
     const updateStarStatus = async (id, isFolder = true) => {
       const ref = doc(firestore, isFolder ? "folders" : "files", id);
-      await updateDoc(ref, {
-        isStarred: newStarredStatus,
-      });
+      await updateDoc(ref, { isStarred: newStarredStatus });
     };
-
+  
     const fetchAndUpdateSubItems = async (parentId) => {
-      // Fetch and update subfolders
-      const subFoldersQuery = query(
-        collection(firestore, "folders"),
-        where("parentId", "==", parentId)
-      );
+      const subFoldersQuery = query(collection(firestore, "folders"), where("parentId", "==", parentId));
       const subFoldersSnapshot = await getDocs(subFoldersQuery);
-      subFoldersSnapshot.forEach(async (doc) => {
+      for (const doc of subFoldersSnapshot.docs) {
         await updateStarStatus(doc.id);
         await fetchAndUpdateSubItems(doc.id); // Recursively update subfolders
-      });
-
-      // Optionally, fetch and update files in a similar way
-    };
-
-    try {
-      await updateStarStatus(folderId); // Update the main folder
-      await fetchAndUpdateSubItems(folderId); // Update subfolders and files recursively
-      toast.success(
-        `Folder ${newStarredStatus ? "starred" : "unstarred"} successfully!`
-      );
-      setIsCurrentlyStarred(newStarredStatus);
-      if (onRenameSuccess) {
-        onRenameSuccess(); // Refresh the list
       }
-    } catch (error) {
-      console.error("Error toggling folder star status: ", error);
-      toast.error("Failed to toggle folder star status.");
+  
+      const filesQuery = query(collection(firestore, "files"), where("folderId", "==", parentId));
+      const filesSnapshot = await getDocs(filesQuery);
+      for (const doc of filesSnapshot.docs) {
+        await updateStarStatus(doc.id, false); // Update files
+      }
+    };
+  
+    await updateStarStatus(folderId); // Update the main folder
+    await fetchAndUpdateSubItems(folderId); // Update subfolders and files recursively
+    toast.success(`Folder ${newStarredStatus ? "starred" : "unstarred"} successfully!`);
+    if (onRenameSuccess) {
+      onRenameSuccess(); // Refresh the list
     }
   };
 
@@ -219,7 +212,7 @@ const FolderOptionsDropdown = ({
                     "text",
                     "bg"
                   )} ${
-                    folderColor === color.class ? " border-2 border-black" : ""
+                    folderColor === color.class ? " border-4 border-black" : ""
                   }`} // Add border if selected
                   onClick={() => handleColorSelect(color.class)}
                   title={`Change folder color to ${color.name}`}
@@ -323,3 +316,5 @@ const FolderOptionsDropdown = ({
 };
 
 export default FolderOptionsDropdown;
+
+

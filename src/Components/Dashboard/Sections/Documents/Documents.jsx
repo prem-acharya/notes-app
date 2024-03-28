@@ -309,30 +309,30 @@ const Documents = ({ setSelectedFile }) => {
     setSelectedFile(file);
   };
 
-  const getFileIcon = (fileName) => {
+  const getFileIcon = (fileName, colorClass = "") => {
     const extension = fileName.split(".").pop().toLowerCase();
 
     switch (extension) {
       case "pdf":
-        return <PictureAsPdfIcon />;
+        return <PictureAsPdfIcon className={colorClass} />;
       case "png":
       case "jpg":
       case "jpeg":
-        return <ImageIcon />;
+        return <ImageIcon className={colorClass} />;
       case "mp4":
-        return <MovieIcon />;
+        return <MovieIcon className={colorClass} />;
       case "mp3":
-        return <MusicVideoIcon />;
+        return <MusicVideoIcon className={colorClass} />;
       case "docx":
-        return <DescriptionIcon />;
+        return <DescriptionIcon className={colorClass} />;
       case "pptx":
-        return <SlideshowIcon />;
+        return <SlideshowIcon className={colorClass} />;
       case "xlsx":
-        return <TableChartIcon />;
+        return <TableChartIcon className={colorClass} />;
       case "gif":
-        return <GifBoxIcon />;
+        return <GifBoxIcon className={colorClass} />;
       case "zip":
-        return <FolderZipIcon />;
+        return <FolderZipIcon className={colorClass} />;
       case "py":
       case "c":
       case "html":
@@ -349,9 +349,9 @@ const Documents = ({ setSelectedFile }) => {
       case "yaml":
       case "cc":
       case "php":
-        return <TerminalIcon />;
+        return <TerminalIcon className={colorClass} />;
       default:
-        return <InsertDriveFileIcon />;
+        return <InsertDriveFileIcon className={colorClass} />;
     }
   };
 
@@ -411,6 +411,11 @@ const Documents = ({ setSelectedFile }) => {
     setFolders((prevFolders) =>
       prevFolders.map((folder) =>
         folder.id === folderId ? { ...folder, color: colorClass } : folder
+      )
+    );
+    setUserFiles((prevFiles) =>
+      prevFiles.map((file) =>
+        file.id === folderId ? { ...file, color: colorClass } : file
       )
     );
   };
@@ -516,7 +521,7 @@ const Documents = ({ setSelectedFile }) => {
                         onClick={() => handleFileClick(file)}
                       >
                         <div className="text-blue-400">
-                          {getFileIcon(file.name)}
+                          {getFileIcon(file.name, file.color || "text-blue-400")}
                         </div>
                         <span
                           className="text-sm font-medium truncate"
@@ -533,8 +538,13 @@ const Documents = ({ setSelectedFile }) => {
                       <FileOptionsDropdown
                         file={file}
                         isOpen={dropdownOpen === file.id}
-                        toggleDropdown={toggleDropdown}
+                        toggleDropdown={()=> toggleDropdown(file.id)}
                         onRenameSuccess={fetchFilesAndFolders}
+                        onDeleteSuccess={fetchFilesAndFolders}
+                        fileColor={file.color}
+                        onColorChange={(colorClass) =>
+                          handleColorChange(file.id, colorClass)
+                        }
                       />
                     </div>
                   </div>

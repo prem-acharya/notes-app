@@ -64,9 +64,6 @@ const FileReader = ({ file, onClose }) => {
     }
   };
 
-  const displayName =
-    file.name.length > 15 ? `${file.name.slice(0, 65)}...` : file.name;
-
   return (
     <div className="absolute inset-0 z-50 bg-gray-50 bg-opacity-70 flex justify-center items-center">
       <div className="relative bg-blue-100 p-4 rounded-lg">
@@ -75,7 +72,8 @@ const FileReader = ({ file, onClose }) => {
             className="text-lg font-bold cursor-pointer mr-4"
             title={file.name}
           >
-            {displayName}
+            {file.name.slice(0, 65)}
+            {file.name.length > 65 ? "..." : ""}
           </h2>
           <div className="flex items-center space-x-4">
             <a

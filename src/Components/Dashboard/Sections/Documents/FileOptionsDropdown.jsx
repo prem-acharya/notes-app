@@ -4,19 +4,24 @@ import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutli
 import ColorLensIcon from "@mui/icons-material/ColorLens";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import { doc, updateDoc } from "firebase/firestore";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import StarIcon from "@mui/icons-material/Star"; // Added for "Add to starred" functionality
+import { doc, updateDoc, getDoc, deleteDoc } from "firebase/firestore";
 import { firestore } from "../../../../firebase";
 import { useAuth } from "../../../Authentication/AuthContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import LoadingBar from "react-top-loading-bar";
+import { getDownloadURL } from "firebase/storage";
 
 const FileOptionsDropdown = ({
   file,
   isOpen,
   toggleDropdown,
   onRenameSuccess,
+  onDeleteSuccess,
+  fileColor,
+  onColorChange,
 }) => {
   const dropdownRef = useRef(null);
   const [showRenameDialog, setShowRenameDialog] = useState(false);
@@ -24,6 +29,18 @@ const FileOptionsDropdown = ({
   const [newFileName, setNewFileName] = useState("");
   const { currentUser } = useAuth();
   const [progress, setProgress] = useState(0);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState(0);
+  const [showFileDeleteConfirmDialog, setShowFileDeleteConfirmDialog] = useState(false);
+  const [isFileStarred, setIsFileStarred] = useState(false); // Added for "Add to starred" functionality
+
+  const FilecolorOptions = [
+    { name: "Blue", class: "text-blue-400" },
+    { name: "Red", class: "text-red-500" },
+    { name: "Green", class: "text-green-500" },
+    { name: "Pink", class: "text-pink-400" },
+    { name: "Yellow", class: "text-yellow-400" },
+  ];
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -39,32 +56,60 @@ const FileOptionsDropdown = ({
     };
   }, [isOpen, toggleDropdown]);
 
+  useEffect(() => {
+    const fetchStarStatus = async () => {
+      const fileDocRef = doc(firestore, "files", file.id);
+      const fileDoc = await getDoc(fileDocRef);
+      if (fileDoc.exists()) {
+        setIsFileStarred(fileDoc.data().isStarred || false);
+      }
+    };
+
+    fetchStarStatus();
+  }, [file.id]);
+
   const handleRenameClick = () => {
     setShowRenameDialog(true);
+    setProgress(30);
   };
 
   const handleRenameFile = async () => {
     setIsRenameFile(true);
     setProgress(30); // Start the loading process
     if (!currentUser) {
-      // console.error("No user logged in");
+      toast.error("You must be logged in to rename files.");
       setProgress(100); // Complete the loading process if there's an error
       return;
     }
 
-    const fileDocRef = doc(firestore, "files", file.id); // Change from folderId to file.id
+    // Split the original file name to separate the name from the extension
+    const originalNameParts = file.name.split(".");
+    const originalExtension = originalNameParts.pop(); // Remove the last element (the extension)
+    const originalNameWithoutExtension = originalNameParts.join("."); // Re-join the remaining parts
+
+    // If the new file name is empty or the same as the original (without the extension), do not proceed
+    if (!newFileName || newFileName === originalNameWithoutExtension) {
+      toast.error("Please enter a new name for the file.");
+      setIsRenameFile(false);
+      setProgress(100);
+      return;
+    }
+
+    // Construct the final new file name
+    const finalNewFileName = `${newFileName}.${originalExtension}`;
+
+    const fileDocRef = doc(firestore, "files", file.id);
 
     try {
       await updateDoc(fileDocRef, {
-        name: newFileName || file.name, // Use newFileName or keep the old name if not provided
-        userId: currentUser.uid, // Ensure to update only if the current user owns the folder
+        name: finalNewFileName,
+        userId: currentUser.uid,
       });
-      // console.log("Folder renamed successfully");
-      toast.success("File renamed successfully!");
+      toast.success("File Renamed successfully!");
       setShowRenameDialog(false);
       setProgress(100); // Complete the loading process
       if (onRenameSuccess) {
-        onRenameSuccess(); // Call the callback function to refresh the folders list
+        onRenameSuccess(finalNewFileName); // Pass the new file name to the callback
       }
     } catch (error) {
       toast.error("Failed to rename file!");
@@ -75,9 +120,98 @@ const FileOptionsDropdown = ({
     }
   };
 
+  const handleDownload = async () => {
+    setIsDownloading(true);
+    setDownloadProgress(0);
+
+    // Example Firestore path to the document containing the file URL
+    const docRef = doc(firestore, "files", file.id);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      const fileUrl = docSnap.data().url; // Assuming the URL is stored in the 'url' field
+
+      // Create a temporary anchor tag to trigger the download
+      const a = document.createElement("a");
+      a.href = fileUrl;
+      a.download = file.name; // Set the file name for download
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      setDownloadProgress(100);
+      setIsDownloading(false);
+    } else {
+      toast.error("No such document!");
+      setIsDownloading(false);
+    }
+  };
+
+  const promptDeleteFile = () => {
+    setProgress(30);
+    setShowFileDeleteConfirmDialog(true);
+  };
+
+  const handleDeleteFile = async () => {
+    setProgress(30);
+    setShowFileDeleteConfirmDialog(false); // Close the confirmation dialog
+    const fileDocRef = doc(firestore, "files", file.id); // Corrected to use file.id
+    try {
+      await deleteDoc(fileDocRef);
+      toast.success("File deleted successfully!");
+      setProgress(100);
+      if (onDeleteSuccess) {
+        onDeleteSuccess(); // Refresh files list
+      }
+    } catch (error) {
+      console.error("Error deleting file: ", error);
+      toast.error("Failed to delete file.");
+      setProgress(100);
+    }
+  };
+
+  const handleColorSelect = async (color) => {
+    const fileDocRef = doc(firestore, "files", file.id);
+    setProgress(30);
+    try {
+      await updateDoc(fileDocRef, { color: color.class });
+      // toast.success(`File color changed to ${color.name}!`);
+      if (onColorChange) {
+        onColorChange(color.class); // Assuming onColorChange updates the UI
+        setProgress(100);
+      }
+    } catch (error) {
+      // toast.error("Failed to change file color.");
+      // console.error("Error changing file color: ", error);
+      setProgress(100);
+    }
+  };
+
+  const handleToggleStar = async () => {
+    const fileDocRef = doc(firestore, "files", file.id);
+    const newStarredStatus = !isFileStarred;
+    await updateDoc(fileDocRef, { isStarred: newStarredStatus });
+    setIsFileStarred(newStarredStatus);
+    toast.success(`File ${newStarredStatus ? "added to" : "removed from"} starred!`);
+  };
+
   return (
     <>
       <LoadingBar color="#0066ff" progress={progress} height={4} />
+      {isDownloading && (
+        <div className="fixed bottom-5 z-50 right-5 bg-blue-100 p-6 shadow-lg rounded-md">
+          <div className="flex items-center text-xl justify-between">
+            <span className="ml-4">Downloading...</span>
+            <span className="mr-4">{Math.round(downloadProgress)}%</span>
+          </div>
+          <div className="w-full mt-4 bg-gray-200 rounded-full h-2">
+            <div
+              className="bg-blue-600 h-2 rounded-full"
+              style={{ width: `${downloadProgress}%` }}
+            ></div>
+          </div>
+        </div>
+      )}
       <div
         ref={dropdownRef}
         className={`absolute z-30 right-0 top-10 mb-2 w-48 bg-white rounded-md shadow-lg ${
@@ -85,7 +219,10 @@ const FileOptionsDropdown = ({
         }`}
       >
         <div className="text-gray-700">
-          <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center">
+          <div
+            className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center"
+            onClick={handleDownload}
+          >
             <DownloadIcon className="mr-3" /> Download
           </div>
           <div
@@ -94,16 +231,42 @@ const FileOptionsDropdown = ({
           >
             <DriveFileRenameOutlineIcon className="mr-3" /> Rename
           </div>
-          <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center">
-            <ColorLensIcon className="mr-3" /> File Colors
+          <div className="group px-4 py-2 hover:bg-gray-100 cursor-pointer">
+            <div className="flex items-center">
+              <ColorLensIcon className="mr-3" />
+              <span className="mr-2">File Colors</span>
+            </div>
+            <div className="hidden group-hover:flex flex-wrap mt-2">
+              {FilecolorOptions.map((color) => (
+                <button
+                  key={color.name}
+                  className={`h-6 w-6 rounded-full m-1 focus:outline-none ${color.class.replace(
+                    "text",
+                    "bg"
+                  )} ${
+                    fileColor === color.class ? " border-4 border-black" : ""
+                  }`} // Add border if selected
+                  onClick={() => handleColorSelect(color)}
+                  title={`Change folder color to ${color.name}`}
+                  style={{ backgroundColor: color.name }}
+                />
+              ))}
+            </div>
           </div>
-          <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center">
-            <StarBorderIcon className="mr-3" /> Add to starred
+          <div
+            className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center"
+            onClick={handleToggleStar}
+          >
+            {isFileStarred ? <StarIcon className="mr-3" /> : <StarBorderIcon className="mr-3" />}
+            {isFileStarred ? "Unstar" : "Add to starred"}
           </div>
           <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center">
             <InfoOutlinedIcon className="mr-3" /> File Details
           </div>
-          <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center">
+          <div
+            className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center"
+            onClick={promptDeleteFile}
+          >
             <DeleteForeverIcon className="mr-3" /> Delete
           </div>
         </div>
@@ -146,8 +309,42 @@ const FileOptionsDropdown = ({
           </div>
         </div>
       )}
+      {showFileDeleteConfirmDialog && (
+        <div
+          className="fixed inset-0 z-50 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full"
+          id="delete-confirm-modal"
+        >
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div className="mt-3 text-center">
+              <h3 className="text-lg leading-6 font-medium text-gray-700">
+                Confirm Delete
+              </h3>
+              <div className="mt-2 px-7 py-3">
+                <p className="text-sm text-gray-500">
+                  Are you sure you want to delete this file?
+                </p>
+              </div>
+              <div className="items-center px-4 py-3">
+                <button
+                  className="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded-md mr-2"
+                  onClick={() => setShowFileDeleteConfirmDialog(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="px-4 py-2 bg-blue-500 hover:bg-red-500 text-white rounded-md"
+                  onClick={handleDeleteFile}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
 
-export default FileOptionsDropdown;
+export default FileOptionsDropdown
+
