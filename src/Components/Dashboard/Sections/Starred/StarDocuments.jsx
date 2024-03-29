@@ -17,7 +17,7 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { storage, firestore } from "../../../../firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { collection, query, where, getDocs, doc, onSnapshot } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, updateDoc, onSnapshot } from "firebase/firestore";
 import { useAuth } from "../../../Authentication/AuthContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -209,9 +209,20 @@ const Starred = ({ setSelectedFile }) => {
     }
   };
 
-  const handleFileClick = (file) => {
+  const handleFileClick = async (file) => {
     setSelectedFile(file);
-  };
+      // Reference to the clicked file in Firestore
+      const fileRef = doc(firestore, "files", file.id);
+
+      // Update the lastOpened timestamp of the file
+      await updateDoc(fileRef, {
+        lastOpened: new Date().toISOString() // Store the current timestamp
+      }).then(() => {
+        // console.log("Timestamp updated successfully");
+      }).catch((error) => {
+        // console.error("Error updating timestamp: ", error);
+      });
+    };
 
   const getFileIcon = (fileName, colorClass = "") => {
     const extension = fileName.split(".").pop().toLowerCase();

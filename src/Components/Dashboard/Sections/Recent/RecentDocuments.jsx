@@ -104,9 +104,9 @@ const RecentDocuments = ({ setSelectedFile }) => {
     await updateDoc(fileRef, {
       lastOpened: new Date().toISOString() // Store the current timestamp
     }).then(() => {
-      console.log("Timestamp updated successfully");
+    //   console.log("Timestamp updated successfully");
     }).catch((error) => {
-      console.error("Error updating timestamp: ", error);
+    //   console.error("Error updating timestamp: ", error);
     });
   };
 

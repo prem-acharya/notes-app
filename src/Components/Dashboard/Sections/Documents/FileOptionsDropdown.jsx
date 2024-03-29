@@ -33,6 +33,7 @@ const FileOptionsDropdown = ({
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [showFileDeleteConfirmDialog, setShowFileDeleteConfirmDialog] = useState(false);
   const [isFileStarred, setIsFileStarred] = useState(false); // Added for "Add to starred" functionality
+  const [showFileDetailsDialog, setShowFileDetailsDialog] = useState(false); // State to control file details dialog visibility
 
   const FilecolorOptions = [
     { name: "Blue", class: "text-blue-400" },
@@ -195,6 +196,25 @@ const FileOptionsDropdown = ({
     toast.success(`File ${newStarredStatus ? "starred" : "unstarred"} successfully!`);
   };
 
+  const handleFileDetails = async () => {
+    setShowFileDetailsDialog(true); // Show the file details dialog
+  };
+
+  // Helper function to format file size
+  const formatBytes = (bytes, decimals = 2) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+  };
+
+  // Helper function to get file extension
+  const getFileExtension = (filename) => {
+    return filename.slice(((filename.lastIndexOf(".") - 1) >>> 0) + 2);
+  };
+
   return (
     <>
       <LoadingBar color="#0066ff" progress={progress} height={4} />
@@ -260,7 +280,10 @@ const FileOptionsDropdown = ({
             {isFileStarred ? <StarIcon className="mr-3" /> : <StarBorderIcon className="mr-3" />}
             {isFileStarred ? "Unstar" : "Add to starred"}
           </div>
-          <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center">
+          <div
+            className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center"
+            onClick={handleFileDetails}
+          >
             <InfoOutlinedIcon className="mr-3" /> File Details
           </div>
           <div
@@ -342,10 +365,48 @@ const FileOptionsDropdown = ({
           </div>
         </div>
       )}
+      {showFileDetailsDialog && (
+        <div
+          className="fixed inset-0 z-50 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full"
+          id="file-details-modal"
+        >
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <h3 className="text-lg leading-6 text-center font-medium text-gray-700">
+                File Details
+              </h3>
+              <div className="mt-2 ml-4 px-3 py-2">
+                <p className="text-sm text-gray-500">
+                  <strong className="hover:text-blue-500">Name:</strong> {file.name}
+                </p>
+                <p className="text-sm text-gray-500">
+                  <strong className="hover:text-blue-500">Type:</strong> {getFileExtension(file.name)}
+                </p>
+                <p className="text-sm text-gray-500">
+                  <strong className="hover:text-blue-500">Upload Time:</strong> {new Date(file.uploadDate).toLocaleString()}
+                </p>
+                {/* <p className="text-sm text-gray-500">
+                  <strong className="hover:text-blue-500">Last Opened:</strong> {new Date(file.lastOpened).toLocaleString()}
+                </p>
+                { not update in real time} */}
+                <p className="text-sm text-gray-500">
+                  <strong className="hover:text-blue-500">Size:</strong> {formatBytes(file.size)}
+                </p>
+              </div>
+              <div className="items-center text-center px-4 py-3">
+                <button
+                  className="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded-md"
+                  onClick={() => setShowFileDetailsDialog(false)}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
 
-export default FileOptionsDropdown
-
-
+export default FileOptionsDropdown;
