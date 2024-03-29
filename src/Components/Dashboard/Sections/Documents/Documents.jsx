@@ -19,7 +19,15 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { storage, firestore } from "../../../../firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  query,
+  where,
+  getDocs,
+  doc,
+  getDoc,
+} from "firebase/firestore";
 import { useAuth } from "../../../Authentication/AuthContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -218,9 +226,17 @@ const Documents = ({ setSelectedFile }) => {
     );
   };
 
-  const handleFileUpload = (e) => {
+  const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    let isParentStarred = false;
+    if (currentFolderId && currentFolderId !== "root") {
+      const parentFolderRef = doc(firestore, "folders", currentFolderId);
+      const parentFolderSnap = await getDoc(parentFolderRef);
+      isParentStarred =
+        parentFolderSnap.exists() && parentFolderSnap.data().isStarred;
+    }
 
     const fileId = uuidv4();
     const filePath = currentFolderId
@@ -258,6 +274,7 @@ const Documents = ({ setSelectedFile }) => {
               userId: currentUser.uid,
               previewUrl: downloadURL, // Include the preview URL in the file metadata
               folderId: currentFolderId || "root", // Include the current folder ID
+              isStarred: isParentStarred, // Automatically star the file if the parent folder is starred
             };
 
             addDoc(collection(firestore, "files"), fileMetadata);
@@ -368,6 +385,14 @@ const Documents = ({ setSelectedFile }) => {
       return;
     }
 
+    let isParentStarred = false;
+    if (currentFolderId && currentFolderId !== "root") {
+      const parentFolderRef = doc(firestore, "folders", currentFolderId);
+      const parentFolderSnap = await getDoc(parentFolderRef);
+      isParentStarred =
+        parentFolderSnap.exists() && parentFolderSnap.data().isStarred;
+    }
+
     const folderId = uuidv4();
     const folderPath = currentFolderId
       ? `folders/${currentUser.uid}/${currentFolderId}/${folderId}`
@@ -379,6 +404,7 @@ const Documents = ({ setSelectedFile }) => {
       folderId: folderId,
       parentId: currentFolderId || "root",
       creationDate: new Date().toISOString(),
+      isStarred: isParentStarred, // Automatically star the folder if the parent folder is starred
     };
 
     try {
@@ -465,90 +491,116 @@ const Documents = ({ setSelectedFile }) => {
           <div className="h-[68vh] overflow-y-scroll overflow-x-hidden ">
             <div className="mt-4 ml-2 mr-2 cursor-pointer">
               <h3 className="text-lg font-semibold mb-2">Folders</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {sortedFolders.map((folder) => (
-                  <div
-                    key={folder.id}
-                    className="relative bg-blue-50 hover:bg-blue-100 shadow-md rounded-md p-4 flex justify-between items-center"
-                  >
-                    <div
-                      className="flex items-center"
-                      onClick={() => handleFolderClick(folder.id, folder.name)}
-                    >
-                      <FolderIcon
-                        className={`${
-                          folder.color || "text-blue-400"
-                        } text-2xl mr-2`}
-                      />
-                      <span className="text-sm font-medium" title={folder.name}>
-                        {folder.name.slice(0, 15)}
-                        {folder.name.length > 15 ? "..." : ""}
-                      </span>
-                    </div>
-                    <MoreVertIcon
-                      className="text-gray-600 hover:bg-gray-300 rounded-full"
-                      onClick={() => toggleDropdown(folder.id)}
-                    />
-                    <FolderOptionsDropdown
-                      folderId={folder.id}
-                      isOpen={dropdownOpen === folder.id}
-                      toggleDropdown={toggleDropdown}
-                      onRenameSuccess={fetchFilesAndFolders}
-                      folderColor={folder.color} // Pass the current color
-                      onColorChange={(colorClass) =>
-                        handleColorChange(folder.id, colorClass)
-                      }
-                    />
+              <div className="rounded-md">
+                {sortedFolders.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {sortedFolders.map((folder) => (
+                      <div
+                        key={folder.id}
+                        className="relative bg-blue-50 hover:bg-blue-100 shadow-md rounded-md p-4 flex justify-between items-center"
+                      >
+                        <div
+                          className="flex items-center"
+                          onClick={() =>
+                            handleFolderClick(folder.id, folder.name)
+                          }
+                        >
+                          <FolderIcon
+                            className={`${
+                              folder.color || "text-blue-400"
+                            } text-2xl mr-2`}
+                          />
+                          <span
+                            className="text-sm font-medium"
+                            title={folder.name}
+                          >
+                            {folder.name.slice(0, 15)}
+                            {folder.name.length > 15 ? "..." : ""}
+                          </span>
+                        </div>
+                        <MoreVertIcon
+                          className="text-gray-600 hover:bg-gray-300 rounded-full"
+                          onClick={() => toggleDropdown(folder.id)}
+                        />
+                        <FolderOptionsDropdown
+                          folderId={folder.id}
+                          isOpen={dropdownOpen === folder.id}
+                          toggleDropdown={toggleDropdown}
+                          onRenameSuccess={fetchFilesAndFolders}
+                          folderColor={folder.color} // Pass the current color
+                          onColorChange={(colorClass) =>
+                            handleColorChange(folder.id, colorClass)
+                          }
+                        />
+                      </div>
+                    ))}
                   </div>
-                ))}
+                ) : (
+                  <div className="ml-4 text-gray-500">
+                    No folders in this folder.
+                  </div>
+                )}
               </div>
             </div>
             {/* Files Section */}
             <div className="mt-4 ml-2 mr-2 cursor-pointer">
               <h3 className="text-lg font-semibold mb-2">Files</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {sortedFiles.map((file) => (
-                  <div
-                    key={file.id}
-                    className="relative bg-blue-50 hover:bg-blue-100 shadow-md rounded-md p-4 flex flex-col justify-between items-center"
-                  >
-                    {/* <div className="w-full h-32 bg-gray-200 flex items-center justify-center overflow-hidden mb-2">
+              <div
+                className={`rounded-md ${
+                  sortedFiles.length > 0 ? "" : "flex"
+                }`}
+              >
+                {sortedFiles.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {sortedFiles.map((file) => (
+                      <div
+                        key={file.id}
+                        className="relative bg-blue-50 hover:bg-blue-100 shadow-md rounded-md p-4 flex flex-col justify-between items-center"
+                      >
+                        {/* <div className="w-full h-32 bg-gray-200 flex items-center justify-center overflow-hidden mb-2">
                     <FilePreview file={file} />
                   </div> */}
-                    <div className="flex justify-between items-center w-full">
-                      <div
-                        className="flex items-center space-x-2"
-                        onClick={() => handleFileClick(file)}
-                      >
-                        <div className="text-blue-400">
-                          {getFileIcon(file.name, file.color || "text-blue-400")}
+                        <div className="flex justify-between items-center w-full">
+                          <div
+                            className="flex items-center space-x-2"
+                            onClick={() => handleFileClick(file)}
+                          >
+                            <div className="text-blue-400">
+                              {getFileIcon(
+                                file.name,
+                                file.color || "text-blue-400"
+                              )}
+                            </div>
+                            <span
+                              className="text-sm font-medium truncate"
+                              title={file.name}
+                            >
+                              {file.name.slice(0, 15)}
+                              {file.name.length > 15 ? "..." : ""}
+                            </span>
+                          </div>
+                          <MoreVertIcon
+                            className="text-gray-600 hover:bg-gray-300 rounded-full"
+                            onClick={() => toggleDropdown(file.id)}
+                          />
+                          <FileOptionsDropdown
+                            file={file}
+                            isOpen={dropdownOpen === file.id}
+                            toggleDropdown={() => toggleDropdown(file.id)}
+                            onRenameSuccess={fetchFilesAndFolders}
+                            onDeleteSuccess={fetchFilesAndFolders}
+                            fileColor={file.color}
+                            onColorChange={(colorClass) =>
+                              handleColorChange(file.id, colorClass)
+                            }
+                          />
                         </div>
-                        <span
-                          className="text-sm font-medium truncate"
-                          title={file.name}
-                        >
-                          {file.name.slice(0, 15)}
-                          {file.name.length > 15 ? "..." : ""}
-                        </span>
                       </div>
-                      <MoreVertIcon
-                        className="text-gray-600 hover:bg-gray-300 rounded-full"
-                        onClick={() => toggleDropdown(file.id)}
-                      />
-                      <FileOptionsDropdown
-                        file={file}
-                        isOpen={dropdownOpen === file.id}
-                        toggleDropdown={()=> toggleDropdown(file.id)}
-                        onRenameSuccess={fetchFilesAndFolders}
-                        onDeleteSuccess={fetchFilesAndFolders}
-                        fileColor={file.color}
-                        onColorChange={(colorClass) =>
-                          handleColorChange(file.id, colorClass)
-                        }
-                      />
-                    </div>
+                    ))}
                   </div>
-                ))}
+                ) : (
+                  <div className="mb-14 ml-4 text-gray-500">No files in this folder.</div>
+                )}
               </div>
             </div>
           </div>

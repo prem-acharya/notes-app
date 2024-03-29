@@ -192,7 +192,7 @@ const FileOptionsDropdown = ({
     const newStarredStatus = !isFileStarred;
     await updateDoc(fileDocRef, { isStarred: newStarredStatus });
     setIsFileStarred(newStarredStatus);
-    toast.success(`File ${newStarredStatus ? "added to" : "removed from"} starred!`);
+    toast.success(`File ${newStarredStatus ? "starred" : "unstarred"} successfully!`);
   };
 
   return (
@@ -347,4 +347,5 @@ const FileOptionsDropdown = ({
 };
 
 export default FileOptionsDropdown
+
 

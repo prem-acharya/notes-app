@@ -3,6 +3,7 @@ import Sidebar from './Sidebar';
 import Header from './Header';
 import Documents from './Sections/Documents/Documents';
 import FileReader from './Sections/Documents/FileReader';
+import Starred from './Sections/Starred/StarDocuments';
 // import MainContent from './MainContent';
 
 const Dashboard = () => {
@@ -25,6 +26,7 @@ const Dashboard = () => {
         />
         {/* Conditional rendering based on selectedOption */}
         {selectedOption === "documents" && <Documents setSelectedFile={setSelectedFile} />}
+        {selectedOption === "starred" && <Starred setSelectedFile={setSelectedFile} />}
         {/* Add similar conditions for other options like "scanner", "recent", etc. */}
       </div>
       {selectedFile && (

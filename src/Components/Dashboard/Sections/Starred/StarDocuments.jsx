@@ -50,59 +50,57 @@ const Starred = ({ setSelectedFile }) => {
     }
   };
 
-  const fetchFilesAndFolders = async (folderId = "root") => {
+  useEffect(() => {
     if (!currentUser) return;
 
-    setFolders([]); // Reset folders state before fetching new data
-    setUserFiles([]); // Reset files state before fetching new data
-
-    // Fetch starred folders at the current level
-    const foldersQuery = query(
-      collection(firestore, "folders"),
-      where("userId", "==", currentUser.uid),
-      where("parentId", "==", folderId),
-      where("isStarred", "==", true)
+    const unsubscribeFolders = onSnapshot(
+      query(
+        collection(firestore, "folders"),
+        where("userId", "==", currentUser.uid),
+        where("parentId", "==", currentFolderId),
+        where("isStarred", "==", true)
+      ),
+      (snapshot) => {
+        const foldersData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setFolders(foldersData);
+      }
     );
-    const foldersSnapshot = await getDocs(foldersQuery);
-    const foldersData = foldersSnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
 
-    // Fetch starred files at the current level
-    const filesQuery = query(
-      collection(firestore, "files"),
-      where("userId", "==", currentUser.uid),
-      where("folderId", "==", folderId),
-      where("isStarred", "==", true)
+    const unsubscribeFiles = onSnapshot(
+      query(
+        collection(firestore, "files"),
+        where("userId", "==", currentUser.uid),
+        where("folderId", "==", currentFolderId),
+        where("isStarred", "==", true)
+      ),
+      (snapshot) => {
+        const filesData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setUserFiles(filesData);
+      }
     );
-    const filesSnapshot = await getDocs(filesQuery);
-    const filesData = filesSnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
 
-    // Update state with fetched folders and files
-    setFolders(foldersData);
-    setUserFiles(filesData);
-  };
-
-  useEffect(() => {
-    fetchFilesAndFolders(currentFolderId);
+    return () => {
+      unsubscribeFolders();
+      unsubscribeFiles();
+    };
   }, [currentUser, currentFolderId]);
 
   const handleFolderClick = (folderId, folderName) => {
     setCurrentFolderId(folderId);
     // Update breadcrumbPath to include the new folder
     setBreadcrumbPath(prevPath => [...prevPath, { id: folderId, name: folderName }]);
-    fetchFilesAndFolders(folderId);
   };
 
   const handleBreadcrumbClick = (folderId, index) => {
     setCurrentFolderId(folderId);
     // Trim the breadcrumbPath to the selected index
     setBreadcrumbPath(prevPath => prevPath.slice(0, index + 1));
-    fetchFilesAndFolders(folderId);
   };
 
   const Breadcrumb = ({ path, onBreadcrumbClick }) => {
@@ -274,7 +272,7 @@ const Starred = ({ setSelectedFile }) => {
     );
   };
 
-  document.title = "Notes App - My Documents";
+  document.title = "Notes App - Starred Documents";
 
   return (
     <>
@@ -295,89 +293,95 @@ const Starred = ({ setSelectedFile }) => {
           <div className="mt-4 ml-2 mr-2 cursor-pointer">
             <h3 className="text-lg font-semibold mb-2">Folders</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {folders.map((folder) => (
-                <div
-                  key={folder.id}
-                  className="relative bg-blue-50 hover:bg-blue-100 shadow-md rounded-md p-4 flex justify-between items-center"
-                  onClick={() => handleFolderClick(folder.id, folder.name)}
-                >
+              {folders.length > 0 ? (
+                folders.map((folder) => (
                   <div
-                    className="flex items-center"
-                  >
-                    <FolderIcon
-                      className={`${folder.color || "text-blue-400"} text-2xl mr-2`}
-                    />
-                    <span className="text-sm font-medium" title={folder.name}>
-                      {folder.name.slice(0, 15)}
-                      {folder.name.length > 15 ? "..." : ""}
-                    </span>
-                  </div>
-                  <MoreVertIcon
-                    className="text-gray-600 hover:bg-gray-300 rounded-full"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleDropdown(folder.id);
-                    }}
-                  />
-                  <FolderOptionsDropdown
-                    folderId={folder.id}
-                    isOpen={dropdownOpen === folder.id}
-                    toggleDropdown={toggleDropdown}
-                    onRenameSuccess={() => fetchFilesAndFolders(currentFolderId)}
-                    folderColor={folder.color} // Pass the current color
-                    onColorChange={(colorClass) =>
-                      handleColorChange(folder.id, colorClass)
-                    }
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-          {/* Files Section */}
-          <div className="mt-4 ml-2 mr-2 cursor-pointer">
-            <h3 className="text-lg font-semibold mb-2">Files</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {userFiles.map((file) => (
-                <div
-                  key={file.id}
-                  className="relative bg-blue-50 hover:bg-blue-100 shadow-md rounded-md p-4 flex flex-col justify-between items-center"
-                  onClick={() => handleFileClick(file)}
-                >
-                  <div className="flex justify-between items-center w-full">
+                    key={folder.id}
+                    className="relative bg-blue-50 hover:bg-blue-100 shadow-md rounded-md p-4 flex justify-between items-center">
                     <div
-                      className="flex items-center space-x-2"
+                      className="flex items-center"
+                      onClick={() => handleFolderClick(folder.id, folder.name)}
                     >
-                      <div className="text-blue-400">
-                        {getFileIcon(file.name, file.color || "text-blue-400")}
-                      </div>
-                      <span
-                        className="text-sm font-medium truncate"
-                        title={file.name}
-                      >
-                        {file.name.slice(0, 15)}
-                        {file.name.length > 15 ? "..." : ""}
+                      <FolderIcon
+                        className={`${folder.color || "text-blue-400"} text-2xl mr-2`}
+                      />
+                      <span className="text-sm font-medium" title={folder.name}>
+                        {folder.name.slice(0, 15)}
+                        {folder.name.length > 15 ? "..." : ""}
                       </span>
                     </div>
                     <MoreVertIcon
                       className="text-gray-600 hover:bg-gray-300 rounded-full"
                       onClick={(e) => {
                         e.stopPropagation();
-                        toggleDropdown(file.id);
+                        toggleDropdown(folder.id);
                       }}
                     />
-                    <FileOptionsDropdown
-                      file={file}
-                      isOpen={dropdownOpen === file.id}
+                    <FolderOptionsDropdown
+                      folderId={folder.id}
+                      isOpen={dropdownOpen === folder.id}
                       toggleDropdown={toggleDropdown}
-                      onRenameSuccess={() => fetchFilesAndFolders(currentFolderId)}
-                      fileColor={file.color}
-                        onColorChange={(colorClass) =>
-                          handleColorChange(file.id, colorClass)
-                        }
+                      onRenameSuccess={() => {}}
+                      folderColor={folder.color} // Pass the current color
+                      onColorChange={(colorClass) =>
+                        handleColorChange(folder.id, colorClass)
+                      }
                     />
                   </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <div className="ml-4 text-gray-500">No folders in this folder.</div>
+              )}
+            </div>
+          </div>
+          {/* Files Section */}
+          <div className="mt-4 ml-2 mr-2 cursor-pointer">
+            <h3 className="text-lg font-semibold mb-2">Files</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {userFiles.length > 0 ? (
+                userFiles.map((file) => (
+                  <div
+                    key={file.id}
+                    className="relative bg-blue-50 mb-12 hover:bg-blue-100 shadow-md rounded-md p-4 flex flex-col justify-between items-center">
+                    <div className="flex justify-between items-center w-full">
+                      <div
+                        className="flex items-center space-x-2"
+                        onClick={() => handleFileClick(file)}
+                      >
+                        <div className="text-blue-400">
+                          {getFileIcon(file.name, file.color || "text-blue-400")}
+                        </div>
+                        <span
+                          className="text-sm font-medium truncate"
+                          title={file.name}
+                        >
+                          {file.name.slice(0, 15)}
+                          {file.name.length > 15 ? "..." : ""}
+                        </span>
+                      </div>
+                      <MoreVertIcon
+                        className="text-gray-600 hover:bg-gray-300 rounded-full"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleDropdown(file.id);
+                        }}
+                      />
+                      <FileOptionsDropdown
+                        file={file}
+                        isOpen={dropdownOpen === file.id}
+                        toggleDropdown={toggleDropdown}
+                        onRenameSuccess={() => {}}
+                        fileColor={file.color}
+                          onColorChange={(colorClass) =>
+                            handleColorChange(file.id, colorClass)
+                          }
+                      />
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="mb-14 ml-4 text-gray-500">No files in this folder</div>
+              )}
             </div>
           </div>
           <ToastContainer />
@@ -472,4 +476,4 @@ const Starred = ({ setSelectedFile }) => {
   );
 };
 
-export default Starred;
+export default Starred
