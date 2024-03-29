@@ -290,6 +290,7 @@ const Starred = ({ setSelectedFile }) => {
             <hr />
           </div>
           {/* Folders Section */}
+          <div className="h-[68vh] overflow-y-scroll overflow-x-hidden">
           <div className="mt-4 ml-2 mr-2 cursor-pointer">
             <h3 className="text-lg font-semibold mb-2">Folders</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -342,7 +343,7 @@ const Starred = ({ setSelectedFile }) => {
                 userFiles.map((file) => (
                   <div
                     key={file.id}
-                    className="relative bg-blue-50 mb-12 hover:bg-blue-100 shadow-md rounded-md p-4 flex flex-col justify-between items-center">
+                    className="relative bg-blue-50 hover:bg-blue-100 shadow-md rounded-md p-4 flex flex-col justify-between items-center">
                     <div className="flex justify-between items-center w-full">
                       <div
                         className="flex items-center space-x-2"
@@ -383,6 +384,7 @@ const Starred = ({ setSelectedFile }) => {
                 <div className="mb-14 ml-4 text-gray-500">No files in this folder</div>
               )}
             </div>
+          </div>
           </div>
           <ToastContainer />
         </div>

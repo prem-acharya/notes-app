@@ -27,6 +27,7 @@ import {
   getDocs,
   doc,
   getDoc,
+  updateDoc,
 } from "firebase/firestore";
 import { useAuth } from "../../../Authentication/AuthContext";
 import { ToastContainer, toast } from "react-toastify";
@@ -322,8 +323,20 @@ const Documents = ({ setSelectedFile }) => {
     }
   };
 
-  const handleFileClick = (file) => {
+  const handleFileClick = async (file) => {
     setSelectedFile(file);
+
+    // Reference to the clicked file in Firestore
+    const fileRef = doc(firestore, "files", file.id);
+
+    // Update the lastOpened timestamp of the file
+    await updateDoc(fileRef, {
+      lastOpened: new Date().toISOString() // Store the current timestamp
+    }).then(() => {
+      console.log("Timestamp updated successfully");
+    }).catch((error) => {
+      console.error("Error updating timestamp: ", error);
+    });
   };
 
   const getFileIcon = (fileName, colorClass = "") => {
@@ -488,7 +501,7 @@ const Documents = ({ setSelectedFile }) => {
             <hr />
           </div>
           {/* Folders Section */}
-          <div className="h-[68vh] overflow-y-scroll overflow-x-hidden ">
+          <div className="h-[68vh] overflow-y-scroll overflow-x-hidden">
             <div className="mt-4 ml-2 mr-2 cursor-pointer">
               <h3 className="text-lg font-semibold mb-2">Folders</h3>
               <div className="rounded-md">

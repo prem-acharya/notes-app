@@ -9,6 +9,7 @@ import DocumentScannerIcon from "@mui/icons-material/DocumentScanner";
 import Documents from "./Sections/Documents/Documents";
 import LoadingBar from "react-top-loading-bar";
 import Starred from "./Sections/Starred/StarDocuments";
+import RecentDocuments from "./Sections/Recent/RecentDocuments";
 
 const Sidebar = ({
   isSidebarOpen,
@@ -118,7 +119,7 @@ const Sidebar = ({
             )}
             {selectedOption === "recent" && (
               <div className="bg-white p-5 rounded-md">
-                <h2>Recent Content</h2>
+                <RecentDocuments />
               </div>
             )}
             {selectedOption === "starred" && (
