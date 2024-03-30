@@ -5,6 +5,7 @@ import Documents from './Sections/Documents/Documents';
 import FileReader from './Sections/Documents/FileReader';
 import Starred from './Sections/Starred/StarDocuments';
 import RecentDocuments from './Sections/Recent/RecentDocuments';
+import ScanDocuments from './Sections/ScanDocuments/ScanDocuments';
 // import MainContent from './MainContent';
 
 const Dashboard = () => {
@@ -29,6 +30,7 @@ const Dashboard = () => {
         {selectedOption === "documents" && <Documents setSelectedFile={setSelectedFile} />}
         {selectedOption === "starred" && <Starred setSelectedFile={setSelectedFile} />}
         {selectedOption === "recent" && <RecentDocuments setSelectedFile={setSelectedFile} />}
+        {selectedOption === "scandocuments" && <ScanDocuments setSelectedFile={setSelectedFile} />}
         {/* Add similar conditions for other options like "scanner", "recent", etc. */}
       </div>
       {selectedFile && (

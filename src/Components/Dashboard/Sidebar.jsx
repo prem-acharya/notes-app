@@ -10,6 +10,8 @@ import Documents from "./Sections/Documents/Documents";
 import LoadingBar from "react-top-loading-bar";
 import Starred from "./Sections/Starred/StarDocuments";
 import RecentDocuments from "./Sections/Recent/RecentDocuments";
+import ScanDocuments from "./Sections/ScanDocuments/ScanDocuments";
+import Camera from "./Sections/ScanDocuments/Camera";
 
 const Sidebar = ({
   isSidebarOpen,
@@ -109,12 +111,12 @@ const Sidebar = ({
             )}
             {selectedOption === "camera" && (
               <div className="bg-white p-5 rounded-md">
-                <h2>Camera</h2>
+                <Camera />
               </div>
             )}
             {selectedOption === "scandocuments" && (
               <div className="bg-white p-5 rounded-md">
-                <h2>Scan Documents</h2>
+                <ScanDocuments />
               </div>
             )}
             {selectedOption === "recent" && (
