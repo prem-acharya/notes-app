@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-// import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../Authentication/AuthContext";
 import { storage, database as db } from "../../../../firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -10,7 +9,6 @@ import "react-toastify/dist/ReactToastify.css";
 const Upload = ({ imageDataUrl, onUploadSuccess, onUploadError }) => {
   const [fileName, setFileName] = useState("");
   const [fileNameError, setFileNameError] = useState("");
-  // const navigate = useNavigate();
   const { currentUser } = useAuth();
   const [isUpload, setIsUpload] = useState(false);
 
@@ -24,10 +22,8 @@ const Upload = ({ imageDataUrl, onUploadSuccess, onUploadError }) => {
   };
 
   const uploadImage = async () => {
-    setIsUpload(true);
     if (!currentUser) {
       toast.error("You must be logged in to upload an image.");
-      setIsUpload(false);
       return;
     }
 
@@ -35,39 +31,38 @@ const Upload = ({ imageDataUrl, onUploadSuccess, onUploadError }) => {
       return;
     }
 
+    setIsUpload(true);
+
     try {
       const response = await fetch(imageDataUrl);
       const blob = await response.blob();
-      // Organize images by user's UID in Google Storage
-      const uploadFileName = `scan-documents/${currentUser.uid}/${fileName || new Date().toISOString()}.png`;
-      const imageRef = ref(storage, uploadFileName);
+      const fileSize = blob.size; // Get the file size from the blob
+      const timestamp = new Date().toISOString();
+      const uploadFileName = `${fileName}` + (fileName.endsWith('.png') ? '' : '.png');
+      const imageRef = ref(storage, `scan-documents/${currentUser.uid}/${uploadFileName}`);
 
       const snapshot = await uploadBytes(imageRef, blob);
       const downloadUrl = await getDownloadURL(snapshot.ref);
 
-      // Include the current user's UID when storing the image info in Firestore
       await addDoc(collection(db, "scan-documents"), {
         url: downloadUrl,
-        createdAt: new Date(),
-        name: fileName,
-        userId: currentUser.uid, // Store the user's UID with the image info
+        previewUrl: downloadUrl,
+        uploadDate: new Date(),
+        name: uploadFileName, // Use the uploadFileName with .png extension
+        userId: currentUser.uid,
+        size: fileSize, // Add the file size
+        isStarred: false, // Initialize isStarred as false
       });
 
       onUploadSuccess(downloadUrl);
-      setIsUpload(true);
       toast.success("Image uploaded successfully!");
     } catch (error) {
       onUploadError(error);
-
-      toast.error("Error uploading image!");
-    }finally{
+      toast.error("Error uploading image: " + error.message);
+    } finally {
       setIsUpload(false);
     }
   };
-
-  // const goToDashboard = () => {
-  //   navigate("/scandocuments");
-  // };
 
   return (
     <div className="flex flex-col items-center">
@@ -76,15 +71,10 @@ const Upload = ({ imageDataUrl, onUploadSuccess, onUploadError }) => {
         placeholder="Enter file name"
         value={fileName}
         onChange={(e) => setFileName(e.target.value)}
-        className={`border border-gray-300 rounded-md px-3 py-2 mt-4 focus:outline-none focus:ring focus:ring-blue-400 ${
-          fileNameError ? "border-red-500" : ""
-        }`}
+        className={`border border-gray-300 rounded-md px-3 py-2 mt-4 focus:outline-none focus:ring focus:ring-blue-400 ${fileNameError ? "border-red-500" : ""}`}
         required
       />
-      {fileNameError && (
-        <p className="text-red-500 text-sm mt-1">{fileNameError}</p>
-      )}
-
+      {fileNameError && <p className="text-red-500 text-sm mt-1">{fileNameError}</p>}
       <button
         onClick={uploadImage}
         disabled={isUpload}
@@ -92,13 +82,6 @@ const Upload = ({ imageDataUrl, onUploadSuccess, onUploadError }) => {
       >
         {isUpload ? "Uploading..." : "Upload"}
       </button>
-
-      {/* <button
-        onClick={goToDashboard}
-        className="bg-gray-400 text-white font-semibold px-4 py-2 rounded-md mt-4 hover:bg-gray-600 focus:outline-none focus:ring focus:ring-green-400"
-      >
-        Scan Documents
-      </button> */}
     </div>
   );
 };

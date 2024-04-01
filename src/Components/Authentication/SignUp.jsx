@@ -123,7 +123,7 @@ const Signup = () => {
     }, 500);
   };
 
-  document.title = "Notes App - SignUp";
+  document.title = "SignUp - Notes App";
 
   return (
     <>

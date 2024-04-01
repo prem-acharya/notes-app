@@ -1,20 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
-import FolderIcon from "@mui/icons-material/Folder";
-import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import ImageIcon from "@mui/icons-material/Image";
-import DescriptionIcon from "@mui/icons-material/Description";
-import SlideshowIcon from "@mui/icons-material/Slideshow";
-import TableChartIcon from "@mui/icons-material/TableChart";
-import GifBoxIcon from "@mui/icons-material/GifBox";
-import MovieIcon from "@mui/icons-material/Movie";
-import MusicVideoIcon from "@mui/icons-material/MusicVideo";
-import FolderZipIcon from "@mui/icons-material/FolderZip";
-import TerminalIcon from "@mui/icons-material/Terminal";
 import ClearIcon from "@mui/icons-material/Clear";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { storage, firestore } from "../../../../firebase";
 import { collection, query, where, getDocs, doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { useAuth } from "../../../Authentication/AuthContext";
@@ -127,6 +114,31 @@ const RecentDocuments = ({ setSelectedFile }) => {
   };
 
 
+      const FilePreview = ({ file }) => {
+    const [hasError, setHasError] = useState(false);
+
+    const renderFileIcon = () => (
+      <div className="flex justify-center items-center w-full h-32 bg-gray-200">
+        <div className={`opacity-50 text-6xl ${file.color || "text-blue-500"}`}>
+          <ImageIcon />
+        </div>
+      </div>
+    );
+
+    if (hasError || !file.previewUrl) {
+      return renderFileIcon();
+    }
+
+    return (
+      <img
+        src={file.previewUrl}
+        alt={`Preview of ${file.name}`}
+        className="w-full h-32 object-cover"
+        onError={() => setHasError(true)}
+      />
+    );
+  };
+
 
   document.title = "Starred Documents - Notes App";
 
@@ -149,6 +161,9 @@ const RecentDocuments = ({ setSelectedFile }) => {
                   <div
                     key={file.id}
                     className="relative bg-blue-50 hover:bg-blue-100 shadow-md rounded-md p-4 flex flex-col justify-between items-center">
+                      <div className="w-full h-32 bg-gray-200 flex items-center justify-center overflow-hidden mb-2">
+                    <FilePreview file={file} />
+                  </div>
                     <div className="flex justify-between items-center w-full">
                       <div
                         className="flex items-center space-x-2"
@@ -175,6 +190,7 @@ const RecentDocuments = ({ setSelectedFile }) => {
                         file={file}
                         isOpen={dropdownOpen === file.id}
                         toggleDropdown={toggleDropdown}
+                        collectionName="scan-documents"
                         onRenameSuccess={() => {}}
                         fileColor={file.color}
                           onColorChange={(colorClass) =>
@@ -243,3 +259,4 @@ const RecentDocuments = ({ setSelectedFile }) => {
 };
 
 export default RecentDocuments
+

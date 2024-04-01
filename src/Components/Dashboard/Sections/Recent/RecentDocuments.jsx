@@ -237,7 +237,7 @@ const RecentDocuments = ({ setSelectedFile }) => {
 
   const { today, tomorrow, thisWeek, thisMonth, thisYear, older } = categorizeFilesByDate(userFiles);
 
-  document.title = "Notes App - Starred Documents";
+  document.title = "Starred Documents - Notes App";
 
   return (
     <>

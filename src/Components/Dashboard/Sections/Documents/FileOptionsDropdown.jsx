@@ -22,6 +22,7 @@ const FileOptionsDropdown = ({
   onDeleteSuccess,
   fileColor,
   onColorChange,
+  collectionName,
 }) => {
   const dropdownRef = useRef(null);
   const [showRenameDialog, setShowRenameDialog] = useState(false);
@@ -59,7 +60,7 @@ const FileOptionsDropdown = ({
 
   useEffect(() => {
     const fetchStarStatus = async () => {
-      const fileDocRef = doc(firestore, "files", file.id);
+      const fileDocRef = doc(firestore, collectionName, file.id); // Use collectionName
       const fileDoc = await getDoc(fileDocRef);
       if (fileDoc.exists()) {
         setIsFileStarred(fileDoc.data().isStarred || false);
@@ -67,7 +68,7 @@ const FileOptionsDropdown = ({
     };
 
     fetchStarStatus();
-  }, [file.id]);
+  }, [file.id, collectionName]); // Add collectionName as a dependency
 
   const handleRenameClick = () => {
     setShowRenameDialog(true);
@@ -99,7 +100,7 @@ const FileOptionsDropdown = ({
     // Construct the final new file name
     const finalNewFileName = `${newFileName}.${originalExtension}`;
 
-    const fileDocRef = doc(firestore, "files", file.id);
+    const fileDocRef = doc(firestore, collectionName, file.id); // Use collectionName
 
     try {
       await updateDoc(fileDocRef, {
@@ -126,7 +127,7 @@ const FileOptionsDropdown = ({
     setDownloadProgress(0);
 
     // Example Firestore path to the document containing the file URL
-    const docRef = doc(firestore, "files", file.id);
+    const docRef = doc(firestore, collectionName, file.id); // Use collectionName
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
@@ -156,7 +157,7 @@ const FileOptionsDropdown = ({
   const handleDeleteFile = async () => {
     setProgress(30);
     setShowFileDeleteConfirmDialog(false); // Close the confirmation dialog
-    const fileDocRef = doc(firestore, "files", file.id); // Corrected to use file.id
+    const fileDocRef = doc(firestore, collectionName, file.id); // Use collectionName
     try {
       await deleteDoc(fileDocRef);
       toast.success("File deleted successfully!");
@@ -172,7 +173,7 @@ const FileOptionsDropdown = ({
   };
 
   const handleColorSelect = async (color) => {
-    const fileDocRef = doc(firestore, "files", file.id);
+    const fileDocRef = doc(firestore, collectionName, file.id); // Use collectionName
     setProgress(30);
     try {
       await updateDoc(fileDocRef, { color: color.class });
@@ -189,7 +190,7 @@ const FileOptionsDropdown = ({
   };
 
   const handleToggleStar = async () => {
-    const fileDocRef = doc(firestore, "files", file.id);
+    const fileDocRef = doc(firestore, collectionName, file.id); // Use collectionName
     const newStarredStatus = !isFileStarred;
     await updateDoc(fileDocRef, { isStarred: newStarredStatus });
     setIsFileStarred(newStarredStatus);
@@ -385,10 +386,9 @@ const FileOptionsDropdown = ({
                 <p className="text-sm text-gray-500">
                   <strong className="hover:text-blue-500">Upload Time:</strong> {new Date(file.uploadDate).toLocaleString()}
                 </p>
-                {/* <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500">
                   <strong className="hover:text-blue-500">Last Opened:</strong> {new Date(file.lastOpened).toLocaleString()}
                 </p>
-                { not update in real time} */}
                 <p className="text-sm text-gray-500">
                   <strong className="hover:text-blue-500">Size:</strong> {formatBytes(file.size)}
                 </p>

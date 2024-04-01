@@ -88,7 +88,7 @@ const Login = () => {
     }, 500); // Wait for half a second to simulate loading
   };
 
-  document.title = "Notes App - Login";
+  document.title = "Login - Notes App";
 
   return (
     <>

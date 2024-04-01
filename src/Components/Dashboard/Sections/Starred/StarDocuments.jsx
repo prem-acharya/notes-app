@@ -283,7 +283,7 @@ const Starred = ({ setSelectedFile }) => {
     );
   };
 
-  document.title = "Notes App - Starred Documents";
+  document.title = "Starred Documents - Notes App";
 
   return (
     <>
@@ -382,6 +382,7 @@ const Starred = ({ setSelectedFile }) => {
                         file={file}
                         isOpen={dropdownOpen === file.id}
                         toggleDropdown={toggleDropdown}
+                        collectionName="files"
                         onRenameSuccess={() => {}}
                         fileColor={file.color}
                           onColorChange={(colorClass) =>

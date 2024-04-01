@@ -459,7 +459,7 @@ const Documents = ({ setSelectedFile }) => {
     );
   };
 
-  document.title = "Notes App - My Documents";
+  document.title = "My Documents - Notes App";
 
   return (
     <>
@@ -600,6 +600,7 @@ const Documents = ({ setSelectedFile }) => {
                             file={file}
                             isOpen={dropdownOpen === file.id}
                             toggleDropdown={() => toggleDropdown(file.id)}
+                            collectionName="files"
                             onRenameSuccess={fetchFilesAndFolders}
                             onDeleteSuccess={fetchFilesAndFolders}
                             fileColor={file.color}
