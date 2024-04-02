@@ -21,6 +21,7 @@
     "filepreviews": "^2.0.1",
     "firebase": "^10.8.1",
     "jszip": "^3.10.1",
+    "lodash": "^4.17.21",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-image-crop": "^11.0.5",
