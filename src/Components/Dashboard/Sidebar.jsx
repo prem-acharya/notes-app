@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import DescriptionIcon from "@mui/icons-material/Description";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import StorageIcon from "@mui/icons-material/Storage";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import DocumentScannerIcon from "@mui/icons-material/DocumentScanner";
@@ -12,6 +12,7 @@ import Starred from "./Sections/Starred/StarDocuments";
 import RecentDocuments from "./Sections/Recent/RecentDocuments";
 import ScanDocuments from "./Sections/ScanDocuments/ScanDocuments";
 import Camera from "./Sections/ScanDocuments/Camera";
+import RelatedInfo from "./Sections/RelatedInfo/RelatedInfo";
 
 const Sidebar = ({
   isSidebarOpen,
@@ -87,16 +88,16 @@ const Sidebar = ({
               }`}
               onClick={() => handleOptionClick("trash")}
             >
-              <DeleteOutlineIcon className="mr-2" /> Trash
+              <AutoAwesomeIcon className="mr-2" /> Related Info
             </div>
-            <div
+            {/* <div
               className={`flex items-center py-2 text-gray-700 hover:bg-gray-200 rounded-md ${
                 selectedOption === "storage" ? "bg-blue-200" : ""
               }`}
               onClick={() => handleOptionClick("storage")}
             >
               <StorageIcon className="mr-2" /> Storage
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -131,14 +132,14 @@ const Sidebar = ({
             )}
             {selectedOption === "trash" && (
               <div className="bg-white p-5 rounded-md">
-                <h2>Trash Content</h2>
+                <RelatedInfo />
               </div>
             )}
-            {selectedOption === "storage" && (
+            {/* {selectedOption === "storage" && (
               <div className="bg-white p-5 rounded-md">
                 <h2>Storage Content</h2>
               </div>
-            )}
+            )} */}
           </div>
         )}
       </div>
