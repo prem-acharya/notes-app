@@ -532,6 +532,22 @@ const Documents = ({ setSelectedFile }) => {
 
   document.title = "My Documents - Notes App";
 
+  useEffect(() => {
+    // Function to handle click outside of sort menu to close it
+    const handleClickOutside = (event) => {
+      if (sortMenuOpen && !event.target.closest("#sortMenu")) {
+        setSortMenuOpen(false);
+      }
+    };
+
+    // Bind the event listener
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      // Unbind the event listener on clean up
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [sortMenuOpen]);
+
   return (
     <>
       <LoadingBar color="#0066ff" progress={progress} height={4} />
@@ -576,7 +592,7 @@ const Documents = ({ setSelectedFile }) => {
             <div className="mt-4 ml-2 mr-2 cursor-pointer">
               <div className="flex justify-between items-center mb-2">
                 <h3 className="text-lg font-semibold">Folders</h3>
-                <div className="relative inline-block text-left">
+                <div className="relative inline-block text-left" id="sortMenu">
                   <div>
                     <button
                       type="button"
