@@ -1,6 +1,9 @@
 import React from "react";
 import ClearIcon from "@mui/icons-material/Clear";
 import GetAppIcon from "@mui/icons-material/GetApp";
+import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // https://www.npmjs.com/package/react-doc-viewer
 // https://www.npmjs.com/package/react-file-reader
@@ -64,6 +67,20 @@ const FileReader = ({ file, onClose }) => {
     }
   };
 
+  // Function to copy the file URL to clipboard
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(file.previewUrl)
+      .then(() => {
+        // Displaying success toast message
+        toast.success("Copied!");
+      })
+      .catch(err => {
+        // Displaying error toast message in case of a failure
+        toast.error("Failed to copy!");
+        console.error('Failed to copy text: ', err);
+      });
+  };
+
   return (
     <div className="absolute inset-0 z-50 bg-gray-50 bg-opacity-70 flex justify-center items-center">
       <div className="relative bg-blue-100 p-4 rounded-lg">
@@ -81,9 +98,11 @@ const FileReader = ({ file, onClose }) => {
               download
               className="text-blue-600 hover:text-blue-800"
               title="Download"
+              target="_blank"
             >
               <GetAppIcon />
             </a>
+            <ContentCopyOutlinedIcon className="text-blue-600 hover:text-blue-800 mr-3" onClick={copyToClipboard} title="Copy URL" />
             <button
               onClick={onClose}
               className="text-gray-600 hover:text-gray-800"
@@ -95,8 +114,10 @@ const FileReader = ({ file, onClose }) => {
         </div>
         <div className="mt-4">{renderContent()}</div>
       </div>
+      <ToastContainer />
     </div>
   );
 };
 
 export default FileReader;
+
