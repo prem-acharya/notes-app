@@ -76,19 +76,19 @@ const Sidebar = ({
             </div>
             <div
               className={`flex items-center py-2 text-gray-700 hover:bg-gray-200 rounded-md ${
-                selectedOption === "recent" ? "bg-blue-200" : ""
-              }`}
-              onClick={() => handleOptionClick("recent")}
-            >
-              <ScheduleIcon className="mr-2" /> Recent
-            </div>
-            <div
-              className={`flex items-center py-2 text-gray-700 hover:bg-gray-200 rounded-md ${
                 selectedOption === "trash" ? "bg-blue-200" : ""
               }`}
               onClick={() => handleOptionClick("trash")}
             >
               <AutoAwesomeIcon className="mr-2" /> Related Info
+            </div>
+            <div
+              className={`flex items-center py-2 text-gray-700 hover:bg-gray-200 rounded-md ${
+                selectedOption === "recent" ? "bg-blue-200" : ""
+              }`}
+              onClick={() => handleOptionClick("recent")}
+            >
+              <ScheduleIcon className="mr-2" /> Recent
             </div>
             {/* <div
               className={`flex items-center py-2 text-gray-700 hover:bg-gray-200 rounded-md ${

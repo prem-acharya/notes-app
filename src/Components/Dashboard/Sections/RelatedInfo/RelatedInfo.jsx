@@ -50,7 +50,7 @@ const RelatedInfo = () => {
 
   return (
     <>
-      <div className="bg-white p-5 rounded-md absolute top-20 left-5 md:left-72 right-5 md:right-5 shadow-lg">
+      <div className="bg-white p-5 rounded-md absolute top-20 left-5 md:left-72 right-5 md:right-5">
         <div>
           <div className="flex md:flex-row justify-between items-center mb-4">
             <h2 className="text-xl font-semibold mb-4 md:mb-0">Related Info</h2>

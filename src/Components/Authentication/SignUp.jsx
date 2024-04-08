@@ -248,9 +248,12 @@ const Signup = () => {
                 <p className="font-semibold">
                   Please check your email inbox for the verification link.
                 </p>
-                <p className="mt-2">
+                <p className="mt-4">
                   Verification email sent to:{" "}
-                  <strong className="text-blue-500">{email}</strong>
+                  <span className="text-blue-500 font-semibold cursor-pointer" title={email}>
+                  {email.slice(0, 30)}
+                  {email.length > 30 ? "..." : ""}
+                  </span>
                 </p>
                 <div>
                   <img src={verify} alt="Email verification" />

@@ -17,6 +17,11 @@ import TerminalIcon from "@mui/icons-material/Terminal";
 import ClearIcon from "@mui/icons-material/Clear";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import FormatSizeOutlinedIcon from '@mui/icons-material/FormatSizeOutlined';
 import { storage, firestore } from "../../../../firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import {
@@ -56,6 +61,9 @@ const Documents = ({ setSelectedFile }) => {
   const [progress, setProgress] = useState(0);
   const [sortedFolders, setSortedFolders] = useState([]);
   const [sortedFiles, setSortedFiles] = useState([]);
+  const [sortMenuOpen, setSortMenuOpen] = useState(false); // Add this line
+  const [sortOption, setSortOption] = useState('name');
+  const [sortDirection, setSortDirection] = useState('ascending');
 
   const toggleDropdown = (folderId) => {
     if (dropdownOpen === folderId) {
@@ -64,6 +72,67 @@ const Documents = ({ setSelectedFile }) => {
       setDropdownOpen(folderId);
     }
   };
+
+  const toggleSortMenu = () => {
+    setSortMenuOpen((prev) => !prev);
+  };
+
+  const sortFilesAndFolders = (option, direction) => {
+    const sortedFolders = [...folders].sort((a, b) => {
+      if (option === 'name') {
+        return direction === 'ascending'
+          ? a.name.localeCompare(b.name)
+          : b.name.localeCompare(a.name);
+      } else if (option === 'lastOpened') {
+        const dateA = new Date(a.lastOpened);
+        const dateB = new Date(b.lastOpened);
+        return direction === 'ascending'
+          ? dateA - dateB
+          : dateB - dateA;
+      } else if (option === 'uploadTime') {
+        const dateA = new Date(a.uploadDate);
+        const dateB = new Date(b.uploadDate);
+        return direction === 'ascending'
+          ? dateA - dateB
+          : dateB - dateA;
+      } else if (option === 'size') {
+        return direction === 'ascending'
+          ? a.size - b.size
+          : b.size - a.size;
+      }
+    });
+
+    const sortedFiles = [...userFiles].sort((a, b) => {
+      if (option === 'name') {
+        return direction === 'ascending'
+          ? a.name.localeCompare(b.name)
+          : b.name.localeCompare(a.name);
+      } else if (option === 'lastOpened') {
+        const dateA = new Date(a.lastOpened);
+        const dateB = new Date(b.lastOpened);
+        return direction === 'ascending'
+          ? dateA - dateB
+          : dateB - dateA;
+      } else if (option === 'uploadTime') {
+        const dateA = new Date(a.uploadDate);
+        const dateB = new Date(b.uploadDate);
+        return direction === 'ascending'
+          ? dateA - dateB
+          : dateB - dateA;
+      } else if (option === 'size') {
+        return direction === 'ascending'
+          ? a.size - b.size
+          : b.size - a.size;
+      }
+    });
+
+    setSortedFolders(sortedFolders);
+    setSortedFiles(sortedFiles);
+  };
+
+  useEffect(() => {
+    sortFilesAndFolders(sortOption, sortDirection);
+  }, [folders, userFiles, sortOption, sortDirection]);
 
   useEffect(() => {
     // Sort folders by name in ascending order
@@ -331,12 +400,14 @@ const Documents = ({ setSelectedFile }) => {
 
     // Update the lastOpened timestamp of the file
     await updateDoc(fileRef, {
-      lastOpened: new Date().toISOString() // Store the current timestamp
-    }).then(() => {
-      // console.log("Timestamp updated successfully");
-    }).catch((error) => {
-      // console.error("Error updating timestamp: ", error);
-    });
+      lastOpened: new Date().toISOString(), // Store the current timestamp
+    })
+      .then(() => {
+        // console.log("Timestamp updated successfully");
+      })
+      .catch((error) => {
+        // console.error("Error updating timestamp: ", error);
+      });
   };
 
   const getFileIcon = (fileName, colorClass = "") => {
@@ -503,7 +574,75 @@ const Documents = ({ setSelectedFile }) => {
           {/* Folders Section */}
           <div className="h-[68vh] overflow-y-scroll overflow-x-hidden">
             <div className="mt-4 ml-2 mr-2 cursor-pointer">
-              <h3 className="text-lg font-semibold mb-2">Folders</h3>
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="text-lg font-semibold">Folders</h3>
+                <div className="relative inline-block text-left">
+                  <div>
+                    <button
+                      type="button"
+                      className="inline-flex justify-center w-full rounded-full border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 focus:outline-none"
+                      onClick={toggleSortMenu}
+                    >
+                      <FilterListIcon className="mr-2" />
+                      Sort by
+                      <svg
+                        className="-mr-1 ml-2 h-5 w-5 mt-1"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        aria-hidden="true"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                  {sortMenuOpen && (
+                    <div className="origin-top-right z-50 absolute right-0 mt-2 w-44 rounded-md shadow-lg bg-white focus:outline-none">
+                      <div>
+                        <div className={`text-gray-700 hover:text-blue-600 hover:bg-gray-200 block px-4 py-2 font-medium ${sortOption === 'name' && sortDirection === 'ascending' ? 'bg-blue-200' : ''}`}
+                        onClick={() => {
+                          setSortOption('name');
+                          setSortDirection('ascending');
+                        }}>
+                        <ArrowUpwardIcon className="mr-3" />Ascending
+                        </div>
+                        <div className={`text-gray-700 hover:text-blue-600 hover:bg-gray-200 block px-4 py-2 font-medium ${sortOption === 'name' && sortDirection === 'descending' ? 'bg-blue-200' : ''}`}
+                        onClick={() => {
+                          setSortOption('name');
+                          setSortDirection('descending');
+                        }}>
+                        <ArrowDownwardIcon className="mr-3" />Descending
+                        </div>
+                        <div className={`text-gray-700 hover:text-blue-600 hover:bg-gray-200 block px-4 py-2 font-medium ${sortOption === 'uploadTime' ? 'bg-blue-200' : ''}`}
+                        onClick={() => {
+                          setSortOption('uploadTime');
+                          setSortDirection('ascending');
+                        }}>
+                        <UploadFileIcon className="mr-3" />Upload Time
+                        </div>
+                        <div className={`text-gray-700 hover:text-blue-600 hover:bg-gray-200 block px-4 py-2 font-medium ${sortOption === 'lastOpened' ? 'bg-blue-200' : ''}`}
+                        onClick={() => {
+                          setSortOption('lastOpened');
+                          setSortDirection('descending');
+                        }}>
+                        <OpenInNewIcon className="mr-3" />Last Opened
+                        </div>
+                        <div className={`text-gray-700 hover:text-blue-600 hover:bg-gray-200 block px-4 py-2 font-medium ${sortOption === 'size' ? 'bg-blue-200' : ''}`}
+                        onClick={() => {
+                          setSortOption('size');
+                          setSortDirection('descending');
+                        }}>
+                        <FormatSizeOutlinedIcon className="mr-3" />Size
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
               <div className="rounded-md">
                 {sortedFolders.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -559,9 +698,7 @@ const Documents = ({ setSelectedFile }) => {
             <div className="mt-4 ml-2 mr-2 cursor-pointer">
               <h3 className="text-lg font-semibold mb-2">Files</h3>
               <div
-                className={`rounded-md ${
-                  sortedFiles.length > 0 ? "" : "flex"
-                }`}
+                className={`rounded-md ${sortedFiles.length > 0 ? "" : "flex"}`}
               >
                 {sortedFiles.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -613,7 +750,9 @@ const Documents = ({ setSelectedFile }) => {
                     ))}
                   </div>
                 ) : (
-                  <div className="mb-14 ml-4 text-gray-500">No files in this folder.</div>
+                  <div className="mb-14 ml-4 text-gray-500">
+                    No files in this folder.
+                  </div>
                 )}
               </div>
             </div>
