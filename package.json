@@ -21,7 +21,7 @@
     "compromise": "^14.13.0",
     "file-saver": "^2.0.5",
     "filepreviews": "^2.0.1",
-    "firebase": "^10.8.1",
+    "firebase": "^10.9.0",
     "jszip": "^3.10.1",
     "keyword-extractor": "^0.0.28",
     "lodash": "^4.17.21",
